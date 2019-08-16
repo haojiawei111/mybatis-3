@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2018 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,16 +24,33 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 实现 Cache 接口，基于 java.lang.ref.WeakReference 的 Cache 实现类
  * Weak Reference cache decorator.
  * Thanks to Dr. Heinz Kabutz for his guidance here.
- * 
+ *
+ * 从PhantomReference类的源代码可以知道，它的get()方法无论何时返回的都只会是null。
+ * 所以单独使用虚引用时，没有什么意义，需要和引用队列ReferenceQueue类联合使用。
+ * 当执行Java GC时如果一个对象只有虚引用，就会把这个对象加入到与之关联的ReferenceQueue中。
+ *
  * @author Clinton Begin
  */
 public class WeakCache implements Cache {
+  /**
+   * 强引用的键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
-  private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
-  private final Cache delegate;
+  /**
+   * {@link #hardLinksToAvoidGarbageCollection} 的大小
+   */
   private int numberOfHardLinks;
+  /**
+   * 被 GC 回收的 WeakEntry 集合，避免被 GC。
+   */
+  private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
+  /**
+   * 装饰的 Cache 对象
+   */
+  private final Cache delegate;
 
   public WeakCache(Cache delegate) {
     this.delegate = delegate;
@@ -49,6 +66,7 @@ public class WeakCache implements Cache {
 
   @Override
   public int getSize() {
+    // 移除已经被 GC 回收的 WeakEntry
     removeGarbageCollectedItems();
     return delegate.getSize();
   }
@@ -59,7 +77,9 @@ public class WeakCache implements Cache {
 
   @Override
   public void putObject(Object key, Object value) {
+    // 移除已经被 GC 回收的 WeakEntry
     removeGarbageCollectedItems();
+    // 添加到 delegate 中
     delegate.putObject(key, new WeakEntry(key, value, queueOfGarbageCollectedEntries));
   }
 
@@ -84,14 +104,19 @@ public class WeakCache implements Cache {
 
   @Override
   public Object removeObject(Object key) {
+    // 移除已经被 GC 回收的 WeakEntry
     removeGarbageCollectedItems();
+    // 移除出 delegate
     return delegate.removeObject(key);
   }
 
   @Override
   public void clear() {
+    // 清空 hardLinksToAvoidGarbageCollection
     hardLinksToAvoidGarbageCollection.clear();
+    // 移除已经被 GC 回收的 WeakEntry
     removeGarbageCollectedItems();
+    // 清空 delegate
     delegate.clear();
   }
 

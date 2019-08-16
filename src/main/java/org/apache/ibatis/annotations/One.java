@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2016 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,14 +23,24 @@ import java.lang.annotation.Target;
 import org.apache.ibatis.mapping.FetchType;
 
 /**
+ * 复杂类型的单独属性值的注解
+ *
+ * 这个是表之间关联查询的关键注解
+ *
  * @author Clinton Begin
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface One {
+  /**
+   * @return 已映射语句（也就是映射器方法）的全限定名
+   */
   String select() default "";
 
+  /**
+   * @return 加载类型
+   */
   FetchType fetchType() default FetchType.DEFAULT;
 
 }

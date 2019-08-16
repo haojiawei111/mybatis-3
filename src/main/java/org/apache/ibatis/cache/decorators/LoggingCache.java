@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,13 +22,24 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * ，实现 Cache 接口，支持打印日志的 Cache 实现类
+ *
+ * delegate 属性，被装饰的 Cache 对象。
+ * 在 #getObject(Object key) 方法，增加了 requests 和 hits 的计数，从而实现命中比率的统计，即 #getHitRatio() 方法。
+ *
  * @author Clinton Begin
  */
 public class LoggingCache implements Cache {
 
   private final Log log;
   private final Cache delegate;
+  /**
+   * 统计请求缓存的次数
+   */
   protected int requests = 0;
+  /**
+   * 统计命中缓存的次数
+   */
   protected int hits = 0;
 
   public LoggingCache(Cache delegate) {
@@ -53,9 +64,12 @@ public class LoggingCache implements Cache {
 
   @Override
   public Object getObject(Object key) {
+    // 请求次数jiayi
     requests++;
     final Object value = delegate.getObject(key);
+    // 获得缓存
     if (value != null) {
+      // 命中次数加一
       hits++;
     }
     if (log.isDebugEnabled()) {
@@ -89,6 +103,9 @@ public class LoggingCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * @return 命中比率
+   */
   private double getHitRatio() {
     return (double) hits / (double) requests;
   }

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.apache.ibatis.cache;
 
 /**
+ * 继承 CacheKey 类，空缓存键
+ *
  * @author Clinton Begin
  */
 public final class NullCacheKey extends CacheKey {
@@ -28,11 +30,11 @@ public final class NullCacheKey extends CacheKey {
 
   @Override
   public void update(Object object) {
-    throw new CacheException("Not allowed to update a NullCacheKey instance.");
+    throw new CacheException("Not allowed to update a NullCacheKey instance. 不允许更新NullCacheKey实例");
   }
 
   @Override
   public void updateAll(Object[] objects) {
-    throw new CacheException("Not allowed to update a NullCacheKey instance.");
+    throw new CacheException("Not allowed to update a NullCacheKey instance. 不允许更新NullCacheKey实例。");
   }
 }

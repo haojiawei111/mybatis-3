@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -86,6 +86,8 @@ public class GeneralExceptionsTest {
     try {
       throw thrown;
     } catch (Exception caught) {
+      System.out.println(thrown.getMessage() +"--------------"+caught.getMessage());
+      System.out.println(thrown.getCause() +"--------------"+caught.getCause());
       assertEquals(thrown.getMessage(), caught.getMessage());
       assertEquals(thrown.getCause(), caught.getCause());
     }

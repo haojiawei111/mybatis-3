@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2018 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -32,7 +32,14 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * javax.sql.DataSource 是个神奇的接口，在其上可以衍生出数据连接池、分库分表、读写分离等等功能。
+ *
+ * 实现 DataSource 接口，池化的 DataSource 实现类。
+ *
  * This is a simple, synchronous, thread-safe database connection pool.
+ * 这是一个简单，同步，线程安全的数据库连接池。
+ *
+ * 实际场景下，我们基本不用 MyBatis 自带的数据库连接池的实现。
  *
  * @author Clinton Begin
  */

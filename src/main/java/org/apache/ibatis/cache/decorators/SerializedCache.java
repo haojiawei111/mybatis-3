@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2018 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,10 +30,15 @@ import org.apache.ibatis.cache.CacheException;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 实现 Cache 接口，支持序列化值的 Cache 实现类
+ *
  * @author Clinton Begin
  */
 public class SerializedCache implements Cache {
 
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
 
   public SerializedCache(Cache delegate) {
@@ -52,6 +57,7 @@ public class SerializedCache implements Cache {
 
   @Override
   public void putObject(Object key, Object object) {
+    // object为null或者object实现了Serializable接口，否则报错
     if (object == null || object instanceof Serializable) {
       delegate.putObject(key, serialize((Serializable) object));
     } else {
@@ -90,6 +96,7 @@ public class SerializedCache implements Cache {
     return delegate.equals(obj);
   }
 
+  // 序列化value
   private byte[] serialize(Serializable value) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
          ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -101,6 +108,7 @@ public class SerializedCache implements Cache {
     }
   }
 
+  // 反序列化value
   private Serializable deserialize(byte[] value) {
     Serializable result;
     try (ByteArrayInputStream bis = new ByteArrayInputStream(value);
@@ -120,7 +128,7 @@ public class SerializedCache implements Cache {
 
     @Override
     protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException {
-      return Resources.classForName(desc.getName());
+      return Resources.classForName(desc.getName());// 解析类
     }
     
   }

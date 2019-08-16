@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,60 +38,73 @@ import java.util.concurrent.locks.ReadWriteLock;
  *
  * @author Clinton Begin
  */
-
+// Cache 基于不同的缓存过期策略、特性，有不同的实现类。
 public interface Cache {
 
   /**
-   * @return The identifier of this cache
+   * @return The identifier of this cache 标识
    */
   String getId();
 
   /**
+   * 添加指定键的值
+   *
    * @param key Can be any object but usually it is a {@link CacheKey}
    * @param value The result of a select.
    */
   void putObject(Object key, Object value);
 
   /**
+   * 获得指定键的值
+   *
    * @param key The key
    * @return The object stored in the cache.
    */
   Object getObject(Object key);
 
   /**
-   * As of 3.3.0 this method is only called during a rollback 
+   * 移除指定键的值
+   *
+   * As of 3.3.0 this method is only called during a rollback
    * for any previous value that was missing in the cache.
-   * This lets any blocking cache to release the lock that 
+   * This lets any blocking cache to release the lock that
    * may have previously put on the key.
-   * A blocking cache puts a lock when a value is null 
+   * A blocking cache puts a lock when a value is null
    * and releases it when the value is back again.
-   * This way other threads will wait for the value to be 
+   * This way other threads will wait for the value to be
    * available instead of hitting the database.
    *
-   * 
+   *
    * @param key The key
    * @return Not used
    */
   Object removeObject(Object key);
 
   /**
+   * 清空缓存
+   *
    * Clears this cache instance
-   */  
+   */
   void clear();
 
   /**
+   * 获得容器中缓存的数量
+   *
    * Optional. This method is not called by the core.
-   * 
+   *
    * @return The number of elements stored in the cache (not its capacity).
    */
   int getSize();
-  
-  /** 
+
+  /**
+   * 获得读取写锁。
+   *
    * Optional. As of 3.2.6 this method is no longer called by the core.
-   *  
+   * 可选的。从3.2.6开始，核心不再调用此方法。
+   *
    * Any locking needed by the cache must be provided internally by the cache provider.
-   * 
-   * @return A ReadWriteLock 
+   *
+   * @return A ReadWriteLock
    */
   ReadWriteLock getReadWriteLock();
 

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2018 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ public class ExternalResources {
     // do nothing
   }
 
+  // 复制外部资源，其实就是复制文件
   public static void copyExternalResource(File sourceFile, File destFile) throws IOException {
     if (!destFile.exists()) {
       destFile.createNewFile();
@@ -49,7 +50,7 @@ public class ExternalResources {
     }
 
   }
-
+  // 从templatePath路径读Properties文件，并加载，然后读取key=templateProperty的之值
   public static String getConfiguredTemplate(String templatePath, String templateProperty) throws FileNotFoundException {
     String templateName = "";
     Properties migrationProperties = new Properties();

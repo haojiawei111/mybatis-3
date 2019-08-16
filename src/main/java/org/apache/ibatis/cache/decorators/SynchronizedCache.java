@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,10 +20,17 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 实现 Cache 接口，同步的 Cache 实现类
+ *
+ * 相应的方法，添加了 synchronized 修饰符
+ *
  * @author Clinton Begin
  */
 public class SynchronizedCache implements Cache {
 
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
   
   public SynchronizedCache(Cache delegate) {
@@ -35,27 +42,27 @@ public class SynchronizedCache implements Cache {
     return delegate.getId();
   }
 
-  @Override
+  @Override// 同步
   public synchronized int getSize() {
     return delegate.getSize();
   }
 
-  @Override
+  @Override// 同步
   public synchronized void putObject(Object key, Object object) {
     delegate.putObject(key, object);
   }
 
-  @Override
+  @Override// 同步
   public synchronized Object getObject(Object key) {
     return delegate.getObject(key);
   }
 
-  @Override
+  @Override// 同步
   public synchronized Object removeObject(Object key) {
     return delegate.removeObject(key);
   }
 
-  @Override
+  @Override// 同步
   public synchronized void clear() {
     delegate.clear();
   }

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2016 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,11 +22,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 使用的结果集的注解
+ * @ResultMap复用结果集映射
+ * 使用的注解为 @ResultMap(value = "sqlBlogsMap")，而 "sqlBlogsMap" 中 Mapper XML 中有相关的定义。
  * @author Jeff Butler
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ResultMap {
+  /**
+   * @return 结果集
+   */
   String[] value();
 }

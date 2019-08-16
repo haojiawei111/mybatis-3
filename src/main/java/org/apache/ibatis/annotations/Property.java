@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2016 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 属性的注解
  * The annotation that inject a property value.
  *
  * @since 3.4.2
@@ -31,11 +32,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface Property {
+
   /**
+   * 属性名
+   *
    * A target property name
    */
   String name();
+
   /**
+   * 属性值
+   *
    * A property value or placeholder
    */
   String value();

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2018 the original author or authors.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -58,11 +58,17 @@ public class Reflector {
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
+    // 设置对应的类
     type = clazz;
+    // <1> 初始化 defaultConstructor
     addDefaultConstructor(clazz);
+    // <2> // 初始化 getMethods 和 getTypes ，通过遍历 getting 方法
     addGetMethods(clazz);
+    // <3> // 初始化 setMethods 和 setTypes ，通过遍历 setting 方法。
     addSetMethods(clazz);
+    // <4> // 初始化 getMethods + getTypes 和 setMethods + setTypes ，通过遍历 fields 属性。
     addFields(clazz);
+    // <5> 初始化 readablePropertyNames、writeablePropertyNames、caseInsensitivePropertyMap 属性
     readablePropertyNames = getMethods.keySet().toArray(new String[getMethods.keySet().size()]);
     writeablePropertyNames = setMethods.keySet().toArray(new String[setMethods.keySet().size()]);
     for (String propName : readablePropertyNames) {
@@ -74,8 +80,11 @@ public class Reflector {
   }
 
   private void addDefaultConstructor(Class<?> clazz) {
+    // 获得所有构造方法
     Constructor<?>[] consts = clazz.getDeclaredConstructors();
+    // 遍历所有构造方法，查找无参的构造方法
     for (Constructor<?> constructor : consts) {
+      // 判断无参的构造方法
       if (constructor.getParameterTypes().length == 0) {
           this.defaultConstructor = constructor;
       }
@@ -83,19 +92,27 @@ public class Reflector {
   }
 
   private void addGetMethods(Class<?> cls) {
+    // <1> 属性与其 getting 方法的映射。
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
+    // <2> 获得所有方法
     Method[] methods = getClassMethods(cls);
+    // <3> 遍历所有方法
     for (Method method : methods) {
+      // <3.1> 参数大于 0 ，说明不是 getting 方法，忽略
       if (method.getParameterTypes().length > 0) {
         continue;
       }
+      // <3.2> 以 get 和 is 方法名开头，说明是 getting 方法
       String name = method.getName();
       if ((name.startsWith("get") && name.length() > 3)
-          || (name.startsWith("is") && name.length() > 2)) {
+              || (name.startsWith("is") && name.length() > 2)) {
+        // <3.3> 获得属性
         name = PropertyNamer.methodToProperty(name);
+        // <3.4> 添加到 conflictingGetters 中
         addMethodConflict(conflictingGetters, name, method);
       }
     }
+    // <4> 解决 getting 冲突方法
     resolveGetterConflicts(conflictingGetters);
   }
 
@@ -344,6 +361,7 @@ public class Reflector {
 
   /**
    * Checks whether can control member accessible.
+   * 判断，是否可以修改可访问性
    *
    * @return If can control member accessible, it return {@literal true}
    * @since 3.5.0
