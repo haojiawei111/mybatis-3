@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.apache.ibatis.binding.MapperProxy</OriginalElement>
+  <nodes>
+    <node x="90.5" y="80.0">org.apache.ibatis.binding.MapperProxy</node>
+    <node x="0.0" y="230.0">org.apache.ibatis.binding.MapperRegistry</node>
+    <node x="0.0" y="155.0">org.apache.ibatis.binding.MapperProxyFactory</node>
+    <node x="0.0" y="0.0">java.lang.reflect.InvocationHandler</node>
+    <node x="0.0" y="305.0">org.apache.ibatis.binding.MapperMethod</node>
+    <node x="174.0" y="0.0">java.io.Serializable</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.apache.ibatis.binding.MapperProxy" target="java.lang.reflect.InvocationHandler">
+      <point x="-31.75" y="-15.0" />
+      <point x="122.25" y="55.0" />
+      <point x="77.0" y="55.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.binding.MapperProxy" target="java.io.Serializable">
+      <point x="31.75" y="-15.0" />
+      <point x="185.75" y="55.0" />
+      <point x="231.0" y="55.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="144.0" y="167.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
