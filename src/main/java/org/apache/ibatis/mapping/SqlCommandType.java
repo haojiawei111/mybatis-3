@@ -16,8 +16,33 @@
 package org.apache.ibatis.mapping;
 
 /**
+ * Mybatis中的Sql命令，在枚举类SqlCommandType中定义的
+ *
  * @author Clinton Begin
  */
 public enum SqlCommandType {
-  UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH;
+  /**
+   * 未知
+   */
+  UNKNOWN,
+  /**
+   * 插入
+   */
+  INSERT,
+  /**
+   * 更新
+   */
+  UPDATE,
+  /**
+   * 删除
+   */
+  DELETE,
+  /**
+   * 查询
+   */
+  SELECT,
+  /**
+   * FLUSH
+   */
+  FLUSH;
 }

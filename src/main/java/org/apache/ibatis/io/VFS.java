@@ -28,17 +28,21 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 虚拟文件系统( Virtual File System )抽象类，用来查找指定路径下的的文件们。
+ *
  * Provides a very simple API for accessing resources within an application server.
- * 
+ * 单例有多种实现方式，该类采用的是“懒汉式，线程安全”
  * @author Ben Gunter
  */
 public abstract class VFS {
   private static final Log log = LogFactory.getLog(VFS.class);
 
   /** The built-in implementations. */
+  // 内置的 VFS 实现类的数组 目前 VFS 有 JBoss6VFS 和 DefaultVFS 两个实现类。
   public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
 
   /** The list to which implementations are added by {@link #addImplClass(Class)}. */
+  // 自定义的 VFS 实现类的数组 可通过 #addImplClass(Class<? extends VFS> clazz) 方法，进行添加。
   public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
 
   /** Singleton instance holder. */
@@ -53,6 +57,7 @@ public abstract class VFS {
       impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
       // Try each implementation class until a valid one is found
+      // 创建 VFS 对象，选择最后一个符合的
       VFS vfs = null;
       for (int i = 0; vfs == null || !vfs.isValid(); i++) {
         Class<? extends VFS> impl = impls.get(i);
@@ -82,6 +87,8 @@ public abstract class VFS {
   }
 
   /**
+   * 获得 VFS 单例。
+   *
    * Get the singleton {@link VFS} instance. If no {@link VFS} implementation can be found for the
    * current environment, then this method returns null.
    */
@@ -100,6 +107,8 @@ public abstract class VFS {
       USER_IMPLEMENTATIONS.add(clazz);
     }
   }
+
+  /*       因为 VFS 自己有反射调用方法的需求，所以自己实现了三个方法  getClass、getMethod、invoke              */
 
   /** Get a class by name. If the class is not found then return null. */
   protected static Class<?> getClass(String className) {
@@ -163,6 +172,8 @@ public abstract class VFS {
   }
 
   /**
+   * 静态方法，获得指定路径下的 URL 数组
+   *
    * Get a list of {@link URL}s from the context classloader for all the resources found at the
    * specified path.
    * 
@@ -175,9 +186,12 @@ public abstract class VFS {
   }
 
   /** Return true if the {@link VFS} implementation is valid for the current environment. */
+  // 判断是否为合法的 VFS
   public abstract boolean isValid();
 
   /**
+   * 获得指定路径下的所有资源。
+   *
    * Recursively list the full resource path of all the resources that are children of the
    * resource identified by a URL.
    * 
@@ -190,6 +204,8 @@ public abstract class VFS {
   protected abstract List<String> list(URL url, String forPath) throws IOException;
 
   /**
+   * 获得指定路径下的所有资源。
+   *
    * Recursively list the full resource path of all the resources that are children of all the
    * resources found at the specified path.
    * 
@@ -200,6 +216,7 @@ public abstract class VFS {
   public List<String> list(String path) throws IOException {
     List<String> names = new ArrayList<>();
     for (URL url : getResources(path)) {
+      // 后遍历 URL 数组，调用 #list(URL url, String forPath) 方法，递归的列出所有的资源们。
       names.addAll(list(url, path));
     }
     return names;

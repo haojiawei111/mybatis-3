@@ -32,6 +32,10 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Clinton Begin
  */
 public abstract class BaseBuilder {
+  /**
+   * MyBatis Configuration 对象
+   * XML 和注解中解析到的配置，最终都会设置到 org.apache.ibatis.session.Configuration 中。
+   */
   protected final Configuration configuration;
   protected final TypeAliasRegistry typeAliasRegistry;
   protected final TypeHandlerRegistry typeHandlerRegistry;
@@ -46,23 +50,31 @@ public abstract class BaseBuilder {
     return configuration;
   }
 
+  /**
+   * 创建正则表达式
+   *
+   * @param regex 指定表达式
+   * @param defaultValue 默认表达式
+   * @return 正则表达式
+   */
   protected Pattern parseExpression(String regex, String defaultValue) {
     return Pattern.compile(regex == null ? defaultValue : regex);
   }
-
+  // 将字符串转换成boolean
   protected Boolean booleanValueOf(String value, Boolean defaultValue) {
     return value == null ? defaultValue : Boolean.valueOf(value);
   }
-
+  // 将字符串转换成integer
   protected Integer integerValueOf(String value, Integer defaultValue) {
     return value == null ? defaultValue : Integer.valueOf(value);
   }
-
+  // 将字符串转换成string
   protected Set<String> stringSetValueOf(String value, String defaultValue) {
     value = value == null ? defaultValue : value;
     return new HashSet<>(Arrays.asList(value.split(",")));
   }
 
+  // 解析对应的 JdbcType 类型
   protected JdbcType resolveJdbcType(String alias) {
     if (alias == null) {
       return null;
@@ -73,7 +85,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving JdbcType. Cause: " + e, e);
     }
   }
-
+  // 解析对应的 ResultSetType 类型
   protected ResultSetType resolveResultSetType(String alias) {
     if (alias == null) {
       return null;
@@ -84,7 +96,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ResultSetType. Cause: " + e, e);
     }
   }
-
+  // 解析对应的 ParameterMode 类型
   protected ParameterMode resolveParameterMode(String alias) {
     if (alias == null) {
       return null;
@@ -95,19 +107,22 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ParameterMode. Cause: " + e, e);
     }
   }
-
+  // 创建指定对象
   protected Object createInstance(String alias) {
+    // 获得对应的类型
     Class<?> clazz = resolveClass(alias);
     if (clazz == null) {
       return null;
     }
     try {
+      // 创建对象
       return resolveClass(alias).newInstance();
     } catch (Exception e) {
       throw new BuilderException("Error creating instance. Cause: " + e, e);
     }
   }
 
+  // 获得对应的类型
   protected <T> Class<? extends T> resolveClass(String alias) {
     if (alias == null) {
       return null;
@@ -117,6 +132,11 @@ public abstract class BaseBuilder {
     } catch (Exception e) {
       throw new BuilderException("Error resolving class. Cause: " + e, e);
     }
+  }
+
+  protected <T> Class<? extends T> resolveAlias(String alias) {
+    // 从 typeAliasRegistry 中，通过别名或类全名，获得对应的类
+    return typeAliasRegistry.resolveAlias(alias);
   }
 
   protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, String typeHandlerAlias) {
@@ -132,20 +152,20 @@ public abstract class BaseBuilder {
     return resolveTypeHandler(javaType, typeHandlerType);
   }
 
+  // 从 typeHandlerRegistry 中获得或创建对应的 TypeHandler 对象。
   protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
     if (typeHandlerType == null) {
       return null;
     }
     // javaType ignored for injected handlers see issue #746 for full detail
+    // 先获得 TypeHandler 对象
     TypeHandler<?> handler = typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
     if (handler == null) {
+      // 如果不存在，进行创建 TypeHandler 对象
       // not in registry, create a new one
       handler = typeHandlerRegistry.getInstance(javaType, typeHandlerType);
     }
     return handler;
   }
 
-  protected <T> Class<? extends T> resolveAlias(String alias) {
-    return typeAliasRegistry.resolveAlias(alias);
-  }
 }

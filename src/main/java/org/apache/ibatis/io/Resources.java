@@ -26,15 +26,23 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
+ * Resource 工具类
+ *
  * A class to simplify access to resources through the classloader.
+ * 通过类加载器简化对资源的访问的类。
  *
  * @author Clinton Begin
  */
 public class Resources {
 
+  /**
+   * ClassLoaderWrapper 对象
+   */
   private static ClassLoaderWrapper classLoaderWrapper = new ClassLoaderWrapper();
 
   /**
+   * 字符集
+   *
    * Charset to use when calling getResourceAsReader.
    * null means use the system default.
    */
@@ -54,14 +62,17 @@ public class Resources {
 
   /**
    * Sets the default classloader
+   * 设置classLoaderWrapper默认的类加载器
    *
    * @param defaultClassLoader - the new default ClassLoader
    */
   public static void setDefaultClassLoader(ClassLoader defaultClassLoader) {
-    classLoaderWrapper.defaultClassLoader = defaultClassLoader;
+    classLoaderWrapper.defaultClassLoader = defaultClassLoader;// 修改 ClassLoaderWrapper.
   }
 
   /**
+   * 静态方法，获得指定资源的 URL
+   *
    * Returns the URL of the resource on the classpath
    *
    * @param resource The resource to find
@@ -74,6 +85,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 URL
+   *
    * Returns the URL of the resource on the classpath
    *
    * @param loader   The classloader used to fetch the resource
@@ -90,6 +103,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 InputStream
+   *
    * Returns a resource on the classpath as a Stream object
    *
    * @param resource The resource to find
@@ -101,6 +116,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 InputStream
+   *
    * Returns a resource on the classpath as a Stream object
    *
    * @param loader   The classloader used to fetch the resource
@@ -117,6 +134,8 @@ public class Resources {
   }
 
   /**
+   *  静态方法，获得指定资源的 Properties
+   *
    * Returns a resource on the classpath as a Properties object
    *
    * @param resource The resource to find
@@ -132,6 +151,8 @@ public class Resources {
   }
 
   /**
+   *  静态方法，获得指定资源的 Properties
+   *
    * Returns a resource on the classpath as a Properties object
    *
    * @param loader   The classloader used to fetch the resource
@@ -148,6 +169,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 Reader
+   *
    * Returns a resource on the classpath as a Reader object
    *
    * @param resource The resource to find
@@ -165,6 +188,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 Reader
+   *
    * Returns a resource on the classpath as a Reader object
    *
    * @param loader   The classloader used to fetch the resource
@@ -183,6 +208,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 File 。
+   *
    * Returns a resource on the classpath as a File object
    *
    * @param resource The resource to find
@@ -194,6 +221,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定资源的 File 。
+   *
    * Returns a resource on the classpath as a File object
    *
    * @param loader   - the classloader used to fetch the resource
@@ -206,6 +235,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，获得指定 URL 的InputStream
+   *
    * Gets a URL as an input stream
    *
    * @param urlString - the URL to get
@@ -219,6 +250,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，指定 URL 的 Reader
+   *
    * Gets a URL as a Reader
    *
    * @param urlString - the URL to get
@@ -236,6 +269,8 @@ public class Resources {
   }
 
   /**
+   * 静态方法，指定 URL 的 Properties
+   *
    * Gets a URL as a Properties object
    *
    * @param urlString - the URL to get
@@ -251,6 +286,8 @@ public class Resources {
   }
 
   /**
+   *  静态方法，获得指定类名对应的类。
+   *
    * Loads a class
    *
    * @param className - the class to fetch

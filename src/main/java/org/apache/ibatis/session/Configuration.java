@@ -458,7 +458,11 @@ public class Configuration {
   public Properties getVariables() {
     return variables;
   }
-
+  /**
+   * 变量 Properties 对象。
+   *
+   * 参见 {@link org.apache.ibatis.builder.xml.XMLConfigBuilder#propertiesElement(XNode context)} 方法
+   */
   public void setVariables(Properties variables) {
     this.variables = variables;
   }

@@ -46,11 +46,20 @@ public class DefaultVFS extends VFS {
     /** The magic header that indicates a JAR (ZIP) file. */
     private static final byte[] JAR_MAGIC = {'P', 'K', 3, 4};
 
+    // 都返回 true ，因为默认支持。
     @Override
     public boolean isValid() {
         return true;
     }
 
+    /**
+     * 递归的列出所有的资源们
+     *
+     * @param url The URL that identifies the resource to list.
+     * @param path
+     * @return
+     * @throws IOException
+     */
     @Override
     public List<String> list(URL url, String path) throws IOException {
         InputStream is = null;

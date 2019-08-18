@@ -27,6 +27,8 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 实现 InvocationHandler、Serializable 接口，Mapper Proxy 。
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -46,22 +48,41 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // 如果是 Object 定义的方法，直接调用
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
+        // 见 https://github.com/mybatis/mybatis-3/issues/709 ，支持 JDK8 default 方法
+        // 调用 #isDefaultMethod((Method method) 方法，判断是否为 default 修饰的方法，
+        // 若是，则调用 #invokeDefaultMethod(Object proxy, Method method, Object[] args) 方法，进行反射调用。
       } else if (isDefaultMethod(method)) {
         return invokeDefaultMethod(proxy, method, args);
       }
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
     }
+    // <3.1> 获得 MapperMethod 对象
     final MapperMethod mapperMethod = cachedMapperMethod(method);
+    // <3.2> 执行 MapperMethod 方法
     return mapperMethod.execute(sqlSession, args);
   }
 
+  /**
+   * 默认从 methodCache 缓存中获取。如果不存在，则进行创建，并进行缓存。
+   * @param method
+   * @return
+   */
   private MapperMethod cachedMapperMethod(Method method) {
     return methodCache.computeIfAbsent(method, k -> new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
   }
 
+  /**
+   * 反射调用接口的 default 方法
+   * @param proxy
+   * @param method
+   * @param args
+   * @return
+   * @throws Throwable
+   */
   private Object invokeDefaultMethod(Object proxy, Method method, Object[] args)
       throws Throwable {
     final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
@@ -78,6 +99,8 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   }
 
   /**
+   * JDK8 在接口上，新增了 default 修饰符
+   *
    * Backport of java.lang.reflect.Method#isDefault()
    */
   private boolean isDefaultMethod(Method method) {
