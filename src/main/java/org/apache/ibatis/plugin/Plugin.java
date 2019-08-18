@@ -31,6 +31,9 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 public class Plugin implements InvocationHandler {
 
   private final Object target;
+  /**
+   * 拦截器
+   */
   private final Interceptor interceptor;
   private final Map<Class<?>, Set<Method>> signatureMap;
 
@@ -43,8 +46,10 @@ public class Plugin implements InvocationHandler {
   public static Object wrap(Object target, Interceptor interceptor) {
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
+    // 返回所有才signatureMap中包含的type父类接口
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      // 创建代理
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
@@ -53,11 +58,13 @@ public class Plugin implements InvocationHandler {
     return target;
   }
 
+  // 执行method方法
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
       if (methods != null && methods.contains(method)) {
+        // 执行拦截方法
         return interceptor.intercept(new Invocation(target, method, args));
       }
       return method.invoke(target, args);
@@ -67,11 +74,13 @@ public class Plugin implements InvocationHandler {
   }
 
   private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {
+    // 获取拦截器的Intercepts注解
     Intercepts interceptsAnnotation = interceptor.getClass().getAnnotation(Intercepts.class);
     // issue #251
     if (interceptsAnnotation == null) {
       throw new PluginException("No @Intercepts annotation was found in interceptor " + interceptor.getClass().getName());      
     }
+    // 获取拦截器的值
     Signature[] sigs = interceptsAnnotation.value();
     Map<Class<?>, Set<Method>> signatureMap = new HashMap<>();
     for (Signature sig : sigs) {
@@ -89,11 +98,13 @@ public class Plugin implements InvocationHandler {
   private static Class<?>[] getAllInterfaces(Class<?> type, Map<Class<?>, Set<Method>> signatureMap) {
     Set<Class<?>> interfaces = new HashSet<>();
     while (type != null) {
+      // 遍历接口
       for (Class<?> c : type.getInterfaces()) {
         if (signatureMap.containsKey(c)) {
           interfaces.add(c);
         }
       }
+      // 父类接口
       type = type.getSuperclass();
     }
     return interfaces.toArray(new Class<?>[interfaces.size()]);
