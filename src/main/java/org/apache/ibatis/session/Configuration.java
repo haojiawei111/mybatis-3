@@ -177,18 +177,29 @@ public class Configuration {
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
+  /**
+   * 加载过的资源
+   */
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
+  /**
+   * CacheRefResolver 集合
+   */
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
-  /*
+  /**
    * A map holds cache-ref relationship. The key is the namespace that
    * references a cache bound to another namespace and the value is the
    * namespace which the actual cache is bound to.
+   *
+   * Cache 指向的映射
+   *
+   * @see #addCacheRef(String, String)
+   * @see org.apache.ibatis.builder.xml.XMLMapperBuilder#cacheRefElement(XNode)
    */
   protected final Map<String, String> cacheRefMap = new HashMap<>();
 

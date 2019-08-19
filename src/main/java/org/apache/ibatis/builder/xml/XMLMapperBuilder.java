@@ -49,14 +49,31 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
+ * 继承 BaseBuilder 抽象类，Mapper XML 配置构建器，主要负责解析 Mapper 映射配置文件
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
+
+  /**
+   * 基于 Java XPath 解析器
+   */
   private final XPathParser parser;
+  /**
+   * Mapper 构造器助手
+   */
   private final MapperBuilderAssistant builderAssistant;
+  /**
+   * 可被其他语句引用的可重用语句块的集合
+   *
+   * 例如：<sql id="userColumns"> ${alias}.id,${alias}.username,${alias}.password </sql>
+   */
   private final Map<String, XNode> sqlFragments;
+  /**
+   * 资源引用的地址
+   */
   private final String resource;
 
   @Deprecated
@@ -83,6 +100,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private XMLMapperBuilder(XPathParser parser, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     super(configuration);
+    // 创建 MapperBuilderAssistant 对象
     this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
     this.parser = parser;
     this.sqlFragments = sqlFragments;
@@ -90,14 +108,21 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // <1> 判断当前 Mapper 是否已经加载过
     if (!configuration.isResourceLoaded(resource)) {
+      // <2> 解析 `<mapper />` 节点
       configurationElement(parser.evalNode("*[local-name()='mapper']"));
+      // <3> 标记该 Mapper 已经加载过
       configuration.addLoadedResource(resource);
+      // <4> 绑定 Mapper
       bindMapperForNamespace();
     }
 
+    // <5> 解析待定的 <resultMap /> 节点
     parsePendingResultMaps();
+    // <6> 解析待定的 <cache-ref /> 节点
     parsePendingCacheRefs();
+    // <7> 解析待定的 SQL 语句的节点
     parsePendingStatements();
   }
 
@@ -105,18 +130,31 @@ public class XMLMapperBuilder extends BaseBuilder {
     return sqlFragments.get(refid);
   }
 
+  /**
+   * 解析 <mapper /> 节点
+   *
+   * @param context
+   */
   private void configurationElement(XNode context) {
     try {
+      // <1> 获得 namespace 属性
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      // <1> 设置 namespace 属性  获得 namespace 属性，并设置到 MapperAnnotationBuilder 中
       builderAssistant.setCurrentNamespace(namespace);
+      // <2> 解析 <cache-ref /> 节点
       cacheRefElement(context.evalNode("*[local-name()='cache-ref']"));
+      // <3> 解析 <cache /> 节点
       cacheElement(context.evalNode("*[local-name()='cache']"));
+      // 已废弃！老式风格的参数映射。内联参数是首选,这个元素可能在将来被移除，这里不会记录。
       parameterMapElement(context.evalNodes("*[local-name()='parameterMap']"));
+      // <4> 解析 <resultMap /> 节点们
       resultMapElements(context.evalNodes("*[local-name()='resultMap']"));
+      // <5> 解析 <sql /> 节点们
       sqlElement(context.evalNodes("*[local-name()='sql']"));
+      // <6> 解析 <select /> <insert /> <update /> <delete /> 节点们
       buildStatementFromContext(context.evalNodes("*[local-name()='select' or local-name()='insert' or local-name()='update' or local-name()='delete']"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -186,29 +224,59 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析 <cache-ref /> 节点
+   * 示例如下：
+   *    <cache-ref namespace="com.someone.application.data.SomeMapper"/>
+   *
+   * @param context
+   */
   private void cacheRefElement(XNode context) {
     if (context != null) {
+      // <1> 获得指向的 namespace 名字，并添加到 configuration 的 cacheRefMap 中
+      // 获得指向的 namespace 名字，并调用 Configuration#addCacheRef(String namespace, String referencedNamespace) 方法，添加到 configuration 的 cacheRefMap 中
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
+      // <2> 创建 CacheRefResolver 对象，并执行解析
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant, context.getStringAttribute("namespace"));
       try {
         cacheRefResolver.resolveCacheRef();
       } catch (IncompleteElementException e) {
+        // <3> 解析失败，添加到 configuration 的 incompleteCacheRefs 中
         configuration.addIncompleteCacheRef(cacheRefResolver);
       }
     }
   }
 
+  /**
+   * 解析 cache /> 标签
+   * 示例如下：
+   *
+   * // 使用默认缓存
+   * <cache eviction="FIFO" flushInterval="60000"  size="512" readOnly="true"/>
+   *
+   * // 使用自定义缓存
+   * <cache type="com.domain.something.MyCustomCache">
+   *   <property name="cacheFile" value="/tmp/my-custom-cache.tmp"/>
+   * </cache>
+   *
+   * @param context
+   */
   private void cacheElement(XNode context) {
     if (context != null) {
+      // <1> 获得负责存储的 Cache 实现类
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      // <2> 获得负责过期的 Cache 实现类
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // <3> 获得 flushInterval、size、readWrite、blocking 属性
       Long flushInterval = context.getLongAttribute("flushInterval");
       Integer size = context.getIntAttribute("size");
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
       boolean blocking = context.getBooleanAttribute("blocking", false);
+      // <4> 获得 Properties 属性
       Properties props = context.getChildrenAsProperties();
+      // <5> 创建 Cache 对象  调用 MapperBuilderAssistant#useNewCache(...) 方法，创建 Cache 对象。
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
@@ -239,37 +307,52 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   *  解析 <resultMap /> 节点们
+   *
+   * @param list
+   * @throws Exception
+   */
   private void resultMapElements(List<XNode> list) throws Exception {
+    // 遍历 <resultMap /> 节点们
     for (XNode resultMapNode : list) {
       try {
+        // 处理单个 <resultMap /> 节点
         resultMapElement(resultMapNode);
       } catch (IncompleteElementException e) {
         // ignore, it will be retried
       }
     }
   }
-
+  // 解析 <resultMap /> 节点
   private ResultMap resultMapElement(XNode resultMapNode) throws Exception {
     return resultMapElement(resultMapNode, Collections.<ResultMapping> emptyList(), null);
   }
-
+  // 解析 <resultMap /> 节点
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+    // <1> 获得 id 属性
     String id = resultMapNode.getStringAttribute("id",
-        resultMapNode.getValueBasedIdentifier());
+            resultMapNode.getValueBasedIdentifier());
+    // <1> 获得 type 属性
     String type = resultMapNode.getStringAttribute("type",
         resultMapNode.getStringAttribute("ofType",
             resultMapNode.getStringAttribute("resultType",
                 resultMapNode.getStringAttribute("javaType"))));
+    // <1> 获得 extends 属性
     String extend = resultMapNode.getStringAttribute("extends");
+    // <1> 获得 autoMapping 属性
     Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
+    // <1> 解析 type 对应的类
     Class<?> typeClass = resolveClass(type);
     if (typeClass == null) {
       typeClass = inheritEnclosingType(resultMapNode, enclosingType);
     }
     Discriminator discriminator = null;
+    // <2> 创建 ResultMapping 集合
     List<ResultMapping> resultMappings = new ArrayList<>();
     resultMappings.addAll(additionalResultMappings);
+    // <2> 遍历 <resultMap /> 的子节点
     List<XNode> resultChildren = resultMapNode.getChildren();
     for (XNode resultChild : resultChildren) {
       if ("constructor".equals(resultChild.getName())) {
