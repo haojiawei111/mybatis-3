@@ -161,7 +161,6 @@ public class MapperBuilderAssistant extends BaseBuilder {
    * @return
    */
   public Cache useNewCache(Class<? extends Cache> typeClass,
-  public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,
       Integer size,
