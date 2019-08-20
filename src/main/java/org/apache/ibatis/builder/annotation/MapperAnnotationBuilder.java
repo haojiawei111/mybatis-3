@@ -92,6 +92,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * 加载注解配置。
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
