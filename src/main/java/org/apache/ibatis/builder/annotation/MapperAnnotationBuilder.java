@@ -171,12 +171,17 @@ public class MapperAnnotationBuilder {
 		parsePendingMethods();
 	}
 
+	/**
+	 * 1）获得对应的集合；2）遍历集合，执行解析；3）执行成功，则移除出集合；4）执行失败，忽略异常。
+	 */
 	private void parsePendingMethods() {
+		// 获得 MethodResolver 集合，并遍历进行处理
 		Collection<MethodResolver> incompleteMethods = configuration.getIncompleteMethods();
 		synchronized (incompleteMethods) {
 			Iterator<MethodResolver> iter = incompleteMethods.iterator();
 			while (iter.hasNext()) {
 				try {
+					// 执行解析
 					iter.next().resolve();
 					iter.remove();
 				} catch (IncompleteElementException e) {
@@ -300,11 +305,20 @@ public class MapperAnnotationBuilder {
 		return resultMapId;
 	}
 
+	/**
+	 * 生成 resultMapId
+	 * @param method
+	 * @return
+	 */
 	private String generateResultMapName(Method method) {
+		// 第一种情况，已经声明
+		// 如果有 @Results 注解，并且有设置 id 属性，则直接返回。格式为：`${type.name}.${Results.id}` 。
 		Results results = method.getAnnotation(Results.class);
 		if (results != null && !results.id().isEmpty()) {
 			return type.getName() + "." + results.id();
 		}
+		// 第二种情况，自动生成
+		// 获得 suffix 前缀，相当于方法参数构成的签名
 		StringBuilder suffix = new StringBuilder();
 		for (Class<?> c : method.getParameterTypes()) {
 			suffix.append("-");
@@ -313,41 +327,81 @@ public class MapperAnnotationBuilder {
 		if (suffix.length() < 1) {
 			suffix.append("-void");
 		}
+		// 拼接返回。格式为 `${type.name}.${method.name}${suffix}` 。
 		return type.getName() + "." + method.getName() + suffix;
 	}
 
+	/**
+	 * 创建 ResultMap 对象
+	 *
+	 * @param resultMapId
+	 * @param returnType
+	 * @param args
+	 * @param results
+	 * @param discriminator
+	 */
 	private void applyResultMap(String resultMapId, Class<?> returnType, Arg[] args, Result[] results, TypeDiscriminator discriminator) {
+		// <1> 创建 ResultMapping 数组
 		List<ResultMapping> resultMappings = new ArrayList<>();
+		// <2> 将 @Arg[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中。
 		applyConstructorArgs(args, returnType, resultMappings);
+		// <3> 将 @Result[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中。
 		applyResults(results, returnType, resultMappings);
+		// <4> 创建 Discriminator 对象
 		Discriminator disc = applyDiscriminator(resultMapId, returnType, discriminator);
 		// TODO add AutoMappingBehaviour
+		// <5> ResultMap 对象
 		assistant.addResultMap(resultMapId, returnType, null, disc, resultMappings, null);
+		// <6> 创建 Discriminator 的 ResultMap 对象们
 		createDiscriminatorResultMaps(resultMapId, returnType, discriminator);
 	}
 
+	/**
+	 * 创建 Discriminator 的 ResultMap 对象们
+	 * 遍历 @Case[] 注解数组，创建每个 @Case 对应的 ResultMap 对象
+	 * @param resultMapId
+	 * @param resultType
+	 * @param discriminator
+	 */
 	private void createDiscriminatorResultMaps(String resultMapId, Class<?> resultType, TypeDiscriminator discriminator) {
 		if (discriminator != null) {
+			// 遍历 @Case 注解
 			for (Case c : discriminator.cases()) {
+				// 创建 @Case 注解的 ResultMap 的编号
 				String caseResultMapId = resultMapId + "-" + c.value();
+				// 创建 ResultMapping 数组
 				List<ResultMapping> resultMappings = new ArrayList<>();
 				// issue #136
+				// 将 @Arg[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中。
 				applyConstructorArgs(c.constructArgs(), resultType, resultMappings);
+				// 将 @Result[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中。
 				applyResults(c.results(), resultType, resultMappings);
 				// TODO add AutoMappingBehaviour
+				// 创建 ResultMap 对象
 				assistant.addResultMap(caseResultMapId, c.type(), resultMapId, null, resultMappings, null);
 			}
 		}
 	}
 
+	/**
+	 * 创建 Discriminator 对象
+	 *
+	 * @param resultMapId
+	 * @param resultType
+	 * @param discriminator
+	 * @return
+	 */
 	private Discriminator applyDiscriminator(String resultMapId, Class<?> resultType, TypeDiscriminator discriminator) {
 		if (discriminator != null) {
+			// 解析各种属性
 			String column = discriminator.column();
 			Class<?> javaType = discriminator.javaType() == void.class ? String.class : discriminator.javaType();
 			JdbcType jdbcType = discriminator.jdbcType() == JdbcType.UNDEFINED ? null : discriminator.jdbcType();
 			@SuppressWarnings("unchecked")
+			// 获得 TypeHandler 类
 			Class<? extends TypeHandler<?>> typeHandler = (Class<? extends TypeHandler<?>>)
 					(discriminator.typeHandler() == UnknownTypeHandler.class ? null : discriminator.typeHandler());
+			// 遍历 @Case[] 注解数组，解析成 discriminatorMap 集合
 			Case[] cases = discriminator.cases();
 			Map<String, String> discriminatorMap = new HashMap<>();
 			for (Case c : cases) {
@@ -355,6 +409,7 @@ public class MapperAnnotationBuilder {
 				String caseResultMapId = resultMapId + "-" + value;
 				discriminatorMap.put(value, caseResultMapId);
 			}
+			// 创建 Discriminator 对象
 			return assistant.buildDiscriminator(resultType, column, javaType, jdbcType, typeHandler, discriminatorMap);
 		}
 		return null;
@@ -731,22 +786,33 @@ public class MapperAnnotationBuilder {
 		return null;
 	}
 
+	/**
+	 * 将 @Result[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中
+	 *
+	 * @param results
+	 * @param resultType
+	 * @param resultMappings
+	 */
 	private void applyResults(Result[] results, Class<?> resultType, List<ResultMapping> resultMappings) {
+		// 遍历 @Result[] 数组
 		for (Result result : results) {
+			// 创建 ResultFlag 数组
 			List<ResultFlag> flags = new ArrayList<>();
 			if (result.id()) {
 				flags.add(ResultFlag.ID);
 			}
+			// 获得 TypeHandler 类
 			@SuppressWarnings("unchecked")
 			Class<? extends TypeHandler<?>> typeHandler = (Class<? extends TypeHandler<?>>)
 					((result.typeHandler() == UnknownTypeHandler.class) ? null : result.typeHandler());
+			// 构建 ResultMapping 对象
 			ResultMapping resultMapping = assistant.buildResultMapping(
 					resultType,
 					nullOrEmpty(result.property()),
 					nullOrEmpty(result.column()),
 					result.javaType() == void.class ? null : result.javaType(),
 					result.jdbcType() == JdbcType.UNDEFINED ? null : result.jdbcType(),
-					hasNestedSelect(result) ? nestedSelectId(result) : null,
+					hasNestedSelect(result) ? nestedSelectId(result) : null, // <1.1> <1.2>
 					null,
 					null,
 					null,
@@ -754,49 +820,87 @@ public class MapperAnnotationBuilder {
 					flags,
 					null,
 					null,
-					isLazy(result));
+					isLazy(result)); //判断是否懒加载
+			// 添加到 resultMappings 中
 			resultMappings.add(resultMapping);
 		}
 	}
 
+	/**
+	 * 获得内嵌的查询编号
+	 *
+	 * @param result
+	 * @return
+	 */
 	private String nestedSelectId(Result result) {
+		// 先获得 @One 注解
 		String nestedSelect = result.one().select();
+		// 获得不到，则再获得 @Many
 		if (nestedSelect.length() < 1) {
 			nestedSelect = result.many().select();
 		}
+		// 获得内嵌查询编号，格式为 `{type.name}.${select}`
 		if (!nestedSelect.contains(".")) {
 			nestedSelect = type.getName() + "." + nestedSelect;
 		}
 		return nestedSelect;
 	}
 
+	/**
+	 * 判断是否懒加载
+	 * 根据全局是否懒加载 + @One 或 @Many 注解
+	 *
+	 * @param result
+	 * @return
+	 */
 	private boolean isLazy(Result result) {
+		// 判断是否开启懒加载
 		boolean isLazy = configuration.isLazyLoadingEnabled();
+		// 如果有 @One 注解，则判断是否懒加载
 		if (result.one().select().length() > 0 && FetchType.DEFAULT != result.one().fetchType()) {
 			isLazy = result.one().fetchType() == FetchType.LAZY;
+		// 如果有 @Many 注解，则判断是否懒加载
 		} else if (result.many().select().length() > 0 && FetchType.DEFAULT != result.many().fetchType()) {
 			isLazy = result.many().fetchType() == FetchType.LAZY;
 		}
 		return isLazy;
 	}
 
+	/**
+	 * 判断是否有内嵌的查询
+	 *
+	 * @param result
+	 * @return
+	 */
 	private boolean hasNestedSelect(Result result) {
 		if (result.one().select().length() > 0 && result.many().select().length() > 0) {
 			throw new BuilderException("Cannot use both @One and @Many annotations in the same @Result");
 		}
+		// 判断有 @One 或 @Many 注解
 		return result.one().select().length() > 0 || result.many().select().length() > 0;
 	}
 
+	/**
+	 * 将 @Arg[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中
+	 *
+	 * @param args
+	 * @param resultType
+	 * @param resultMappings
+	 */
 	private void applyConstructorArgs(Arg[] args, Class<?> resultType, List<ResultMapping> resultMappings) {
+		// 遍历 @Arg[] 数组
 		for (Arg arg : args) {
+			// 创建 ResultFlag 数组
 			List<ResultFlag> flags = new ArrayList<>();
 			flags.add(ResultFlag.CONSTRUCTOR);
 			if (arg.id()) {
 				flags.add(ResultFlag.ID);
 			}
+			// 获得 TypeHandler 类
 			@SuppressWarnings("unchecked")
 			Class<? extends TypeHandler<?>> typeHandler = (Class<? extends TypeHandler<?>>)
 					(arg.typeHandler() == UnknownTypeHandler.class ? null : arg.typeHandler());
+			// 将当前 @Arg 注解构建成 ResultMapping 对象
 			ResultMapping resultMapping = assistant.buildResultMapping(
 					resultType,
 					nullOrEmpty(arg.name()),
@@ -812,6 +916,7 @@ public class MapperAnnotationBuilder {
 					null,
 					null,
 					false);
+			// 添加到 resultMappings 中
 			resultMappings.add(resultMapping);
 		}
 	}
