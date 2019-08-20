@@ -52,13 +52,27 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * MapperBuilderAssistant 对象，是 XMLMapperBuilder 和 MapperAnnotationBuilder 的小助手，提供了一些公用的方法，例如创建 ParameterMap、MappedStatement 对象等等
  *
+ * 如果要不是为了 XMLMapperBuilder 和 MapperAnnotationBuilder 都能调用到这个公用方法，可能都不需要这个类。
+ *
  * @author Clinton Begin
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
+  /**
+   * 当前 Mapper 命名空间
+   */
   private String currentNamespace;
+  /**
+   * 资源引用的地址
+   */
   private final String resource;
+  /**
+   * 当前 Cache 对象
+   */
   private Cache currentCache;
+  /**
+   * 是否未解析成功 Cache 引用
+   */
   private boolean unresolvedCacheRef; // issue #676
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
@@ -71,16 +85,18 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace;
   }
 
+  // 设置 currentNamespace 属性
   public void setCurrentNamespace(String currentNamespace) {
+    // 如果传入的 currentNamespace 参数为空，抛出 BuilderException 异常
     if (currentNamespace == null) {
       throw new BuilderException("The mapper element requires a namespace attribute to be specified.");
     }
-
+    // 如果当前已经设置，并且还和传入的不相等，抛出 BuilderException 异常
     if (this.currentNamespace != null && !this.currentNamespace.equals(currentNamespace)) {
       throw new BuilderException("Wrong namespace. Expected '"
           + this.currentNamespace + "' but found '" + currentNamespace + "'.");
     }
-
+    // 设置
     this.currentNamespace = currentNamespace;
   }
 
@@ -105,24 +121,46 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace + "." + base;
   }
 
+  /**
+   * 获得指向的 Cache 对象。如果获得不到，则抛出 IncompleteElementException 异常。
+   *
+   * @param namespace
+   * @return
+   */
   public Cache useCacheRef(String namespace) {
     if (namespace == null) {
       throw new BuilderException("cache-ref element requires a namespace attribute.");
     }
     try {
-      unresolvedCacheRef = true;
+      unresolvedCacheRef = true;// 标记未解决
+      // <1> 获得 Cache 对象
       Cache cache = configuration.getCache(namespace);
+      // 获得不到，抛出 IncompleteElementException 异常
       if (cache == null) {
         throw new IncompleteElementException("No cache for namespace '" + namespace + "' could be found.");
       }
+      // 记录当前 Cache 对象
       currentCache = cache;
-      unresolvedCacheRef = false;
+      unresolvedCacheRef = false; // 标记已解决
       return cache;
     } catch (IllegalArgumentException e) {
       throw new IncompleteElementException("No cache for namespace '" + namespace + "' could be found.", e);
     }
   }
 
+  /**
+   * 创建 Cache 对象
+   *
+   * @param typeClass
+   * @param evictionClass
+   * @param flushInterval
+   * @param size
+   * @param readWrite
+   * @param blocking
+   * @param props
+   * @return
+   */
+  public Cache useNewCache(Class<? extends Cache> typeClass,
   public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,
@@ -130,6 +168,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       boolean readWrite,
       boolean blocking,
       Properties props) {
+    // <1> 创建 Cache 对象
     Cache cache = new CacheBuilder(currentNamespace)
         .implementation(valueOrDefault(typeClass, PerpetualCache.class))
         .addDecorator(valueOrDefault(evictionClass, LruCache.class))
@@ -139,7 +178,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .blocking(blocking)
         .properties(props)
         .build();
+    // <2> 添加到 configuration 的 caches 中
     configuration.addCache(cache);
+    // <3> 赋值给 currentCache
     currentCache = cache;
     return cache;
   }
@@ -360,6 +401,25 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return resultMaps;
   }
 
+  /**
+   * 构造 ResultMapping 对象
+   *
+   * @param resultType
+   * @param property
+   * @param column
+   * @param javaType
+   * @param jdbcType
+   * @param nestedSelect
+   * @param nestedResultMap
+   * @param notNullColumn
+   * @param columnPrefix
+   * @param typeHandler
+   * @param flags
+   * @param resultSet
+   * @param foreignColumn
+   * @param lazy
+   * @return
+   */
   public ResultMapping buildResultMapping(
       Class<?> resultType,
       String property,
@@ -375,18 +435,21 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String resultSet,
       String foreignColumn,
       boolean lazy) {
+    // <1> 解析对应的 Java Type 类和 TypeHandler 对象
     Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
+    // <2> 解析组合字段名称成 ResultMapping 集合。涉及「关联的嵌套查询」
     List<ResultMapping> composites = parseCompositeColumnName(column);
+    // <3> 创建 ResultMapping 对象
     return new ResultMapping.Builder(configuration, property, column, javaTypeClass)
         .jdbcType(jdbcType)
-        .nestedQueryId(applyCurrentNamespace(nestedSelect, true))
-        .nestedResultMapId(applyCurrentNamespace(nestedResultMap, true))
+        .nestedQueryId(applyCurrentNamespace(nestedSelect, true)) /* 调用 #applyCurrentNamespace(String base, boolean isReference) 方法，拼接命名空间 */
+        .nestedResultMapId(applyCurrentNamespace(nestedResultMap, true)) /* 调用 #applyCurrentNamespace(String base, boolean isReference) 方法，拼接命名空间 */
         .resultSet(resultSet)
         .typeHandler(typeHandlerInstance)
         .flags(flags == null ? new ArrayList<ResultFlag>() : flags)
         .composites(composites)
-        .notNullColumns(parseMultipleColumnNames(notNullColumn))
+        .notNullColumns(parseMultipleColumnNames(notNullColumn))// 调用 #parseMultipleColumnNames(String notNullColumn) 方法，将字符串解析成集合
         .columnPrefix(columnPrefix)
         .foreignColumn(foreignColumn)
         .lazy(lazy)

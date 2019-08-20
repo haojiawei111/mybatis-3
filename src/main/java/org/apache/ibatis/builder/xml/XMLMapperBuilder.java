@@ -118,6 +118,8 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
+    // 三个方法的逻辑思路基本一致：获得对应的集合；2）遍历集合，执行解析；3）执行成功，则移除出集合；4）执行失败，忽略异常
+
     // <5> 解析待定的 <resultMap /> 节点
     parsePendingResultMaps();
     // <6> 解析待定的 <cache-ref /> 节点
@@ -196,27 +198,34 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   private void parsePendingResultMaps() {
+    // 获得 ResultMapResolver 集合，并遍历进行处理
     Collection<ResultMapResolver> incompleteResultMaps = configuration.getIncompleteResultMaps();
     synchronized (incompleteResultMaps) {
       Iterator<ResultMapResolver> iter = incompleteResultMaps.iterator();
       while (iter.hasNext()) {
         try {
+          // 执行解析
           iter.next().resolve();
+          // 移除
           iter.remove();
         } catch (IncompleteElementException e) {
           // ResultMap is still missing a resource...
+          // 解析失败，不抛出异常
         }
       }
     }
   }
 
   private void parsePendingCacheRefs() {
+    // 获得 CacheRefResolver 集合，并遍历进行处理
     Collection<CacheRefResolver> incompleteCacheRefs = configuration.getIncompleteCacheRefs();
     synchronized (incompleteCacheRefs) {
       Iterator<CacheRefResolver> iter = incompleteCacheRefs.iterator();
       while (iter.hasNext()) {
         try {
+          // 执行解析
           iter.next().resolveCacheRef();
+          // 移除
           iter.remove();
         } catch (IncompleteElementException e) {
           // Cache ref is still missing a resource...
@@ -226,12 +235,15 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   private void parsePendingStatements() {
+    // 获得 XMLStatementBuilder 集合，并遍历进行处理
     Collection<XMLStatementBuilder> incompleteStatements = configuration.getIncompleteStatements();
     synchronized (incompleteStatements) {
       Iterator<XMLStatementBuilder> iter = incompleteStatements.iterator();
       while (iter.hasNext()) {
         try {
+          // 执行解析
           iter.next().parseStatementNode();
+          // 移除
           iter.remove();
         } catch (IncompleteElementException e) {
           // Statement is still missing a resource...
@@ -619,11 +631,14 @@ public class XMLMapperBuilder extends BaseBuilder {
         //ignore, bound type is not required
       }
       if (boundType != null) {
+        // <2> 不存在该 Mapper 接口，则进行添加
         if (!configuration.hasMapper(boundType)) {
           // Spring may not know the real resource name so we set a flag
           // to prevent loading again this resource from the mapper interface
           // look at MapperAnnotationBuilder#loadXmlResource
+          // <3> 标记 namespace 已经添加，避免 MapperAnnotationBuilder#loadXmlResource(...) 重复加载
           configuration.addLoadedResource("namespace:" + namespace);
+          // <4> 添加到 configuration 中
           configuration.addMapper(boundType);
         }
       }
