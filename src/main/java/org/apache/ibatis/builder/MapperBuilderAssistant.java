@@ -351,14 +351,14 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String databaseId,
       LanguageDriver lang,
       String resultSets) {
-
+    // <1> 如果只想的 Cache 未解析，抛出 IncompleteElementException 异常
     if (unresolvedCacheRef) {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
-
+    // <2> 获得 id 编号，格式为 `${namespace}.${id}`
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
-
+    // <3> 创建 MappedStatement.Builder 对象
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource)
         .fetchSize(fetchSize)
@@ -371,18 +371,21 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .lang(lang)
         .resultOrdered(resultOrdered)
         .resultSets(resultSets)
-        .resultMaps(getStatementResultMaps(resultMap, resultType, id))
+        .resultMaps(getStatementResultMaps(resultMap, resultType, id)) // <3.1> 获得 ResultMap 集合
         .resultSetType(resultSetType)
         .flushCacheRequired(valueOrDefault(flushCache, !isSelect))
         .useCache(valueOrDefault(useCache, isSelect))
         .cache(currentCache);
-
+    // <3.2> 获得 ParameterMap ，并设置到 MappedStatement.Builder 中
+    //  参数集合，对应 paramType="" 或 paramMap="" 标签属性
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
     if (statementParameterMap != null) {
       statementBuilder.parameterMap(statementParameterMap);
     }
 
+    // <4> 创建 MappedStatement 对象
     MappedStatement statement = statementBuilder.build();
+    // <5> 添加到 configuration 中
     configuration.addMappedStatement(statement);
     return statement;
   }
