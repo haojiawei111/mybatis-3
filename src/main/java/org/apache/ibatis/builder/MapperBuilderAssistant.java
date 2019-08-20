@@ -394,12 +394,24 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return value == null ? defaultValue : value;
   }
 
+  /**
+   *
+   * 获得 ParameterMap 对象
+   *
+   * @param parameterMapName
+   * @param parameterTypeClass
+   * @param statementId
+   * @return
+   */
   private ParameterMap getStatementParameterMap(
       String parameterMapName,
       Class<?> parameterTypeClass,
       String statementId) {
+    // 获得 ParameterMap 的编号，格式为 `${namespace}.${parameterMapName}`
     parameterMapName = applyCurrentNamespace(parameterMapName, true);
     ParameterMap parameterMap = null;
+    // <2> 如果 parameterMapName 非空，则获得 parameterMapName 对应的 ParameterMap 对象
+    // MyBatis 官方不建议使用 parameterMap 的方式
     if (parameterMapName != null) {
       try {
         parameterMap = configuration.getParameterMap(parameterMapName);
@@ -407,6 +419,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         throw new IncompleteElementException("Could not find parameter map " + parameterMapName, e);
       }
     } else if (parameterTypeClass != null) {
+      // <1> 如果 parameterTypeClass 非空，则创建 ParameterMap 对象
       List<ParameterMapping> parameterMappings = new ArrayList<>();
       parameterMap = new ParameterMap.Builder(
           configuration,
@@ -417,23 +430,35 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return parameterMap;
   }
 
+  /**
+   * 获得 ResultMap 集合
+   *
+   * @param resultMap
+   * @param resultType
+   * @param statementId
+   * @return
+   */
   private List<ResultMap> getStatementResultMaps(
       String resultMap,
       Class<?> resultType,
       String statementId) {
+    // 获得 resultMap 的编号
     resultMap = applyCurrentNamespace(resultMap, true);
 
+    // 创建 ResultMap 集合
     List<ResultMap> resultMaps = new ArrayList<>();
+    // 如果 resultMap 非空，则获得 resultMap 对应的 ResultMap 对象(们）
     if (resultMap != null) {
       String[] resultMapNames = resultMap.split(",");
       for (String resultMapName : resultMapNames) {
         try {
-          resultMaps.add(configuration.getResultMap(resultMapName.trim()));
+          resultMaps.add(configuration.getResultMap(resultMapName.trim()));// 从 configuration 中获得
         } catch (IllegalArgumentException e) {
           throw new IncompleteElementException("Could not find result map " + resultMapName, e);
         }
       }
     } else if (resultType != null) {
+      // 如果 resultType 非空，则创建 ResultMap 对象
       ResultMap inlineResultMap = new ResultMap.Builder(
           configuration,
           statementId + "-Inline",
