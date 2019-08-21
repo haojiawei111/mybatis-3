@@ -109,6 +109,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   protected void assignKeysToOneOfParams(final Configuration configuration, ResultSet rs, final String[] keyProperties,
       Map<?, ?> paramMap) throws SQLException {
     // Assuming 'keyProperty' includes the parameter name. e.g. 'param.id'.
+    // <1> 需要有 `.` 。
     int firstDot = keyProperties[0].indexOf('.');
     if (firstDot == -1) {
       throw new ExecutorException(
@@ -117,6 +118,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
               + "Specified key properties are " + ArrayUtil.toString(keyProperties) + " and available parameters are "
               + paramMap.keySet());
     }
+    // 获得真正的参数值
     String paramName = keyProperties[0].substring(0, firstDot);
     Object param;
     if (paramMap.containsKey(paramName)) {
@@ -128,6 +130,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
           + paramMap.keySet());
     }
     // Remove param name from 'keyProperty' string. e.g. 'param.id' -> 'id'
+    // 获得主键的属性的配置
     String[] modifiedKeyProperties = new String[keyProperties.length];
     for (int i = 0; i < keyProperties.length; i++) {
       if (keyProperties[i].charAt(firstDot) == '.' && keyProperties[i].startsWith(paramName)) {
@@ -139,6 +142,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
             + paramMap.keySet());
       }
     }
+    // 调用 #assignKeysToParam(...) 方法，设置主键们，到参数 param 中
     assignKeysToParam(configuration, rs, modifiedKeyProperties, param);
   }
 
@@ -148,6 +152,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     final TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
     final ResultSetMetaData rsmd = rs.getMetaData();
     // Wrap the parameter in Collection to normalize the logic.
+    // <1> 包装成 Collection 对象
     Collection<?> paramAsCollection = null;
     if (param instanceof Object[]) {
       paramAsCollection = Arrays.asList((Object[]) param);
@@ -157,14 +162,19 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
       paramAsCollection = (Collection<?>) param;
     }
     TypeHandler<?>[] typeHandlers = null;
+    // <2> 遍历 paramAsCollection 数组
     for (Object obj : paramAsCollection) {
+      // <2.1> 顺序遍历 rs
       if (!rs.next()) {
         break;
       }
+      // <2.2> 创建 MetaObject 对象
       MetaObject metaParam = configuration.newMetaObject(obj);
+      // <2.3> 获得 TypeHandler 数组
       if (typeHandlers == null) {
         typeHandlers = getTypeHandlers(typeHandlerRegistry, metaParam, keyProperties, rsmd);
       }
+      // <2.4> 填充主键们
       populateKeys(rs, metaParam, keyProperties, typeHandlers);
     }
   }
@@ -212,7 +222,18 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     return soleParam;
   }
 
+  /**
+   * 获得 TypeHandler 数组
+   *
+   * @param typeHandlerRegistry
+   * @param metaParam
+   * @param keyProperties
+   * @param rsmd
+   * @return
+   * @throws SQLException
+   */
   private TypeHandler<?>[] getTypeHandlers(TypeHandlerRegistry typeHandlerRegistry, MetaObject metaParam, String[] keyProperties, ResultSetMetaData rsmd) throws SQLException {
+    // 获得主键们，对应的每个属性的，对应的 TypeHandler 对象
     TypeHandler<?>[] typeHandlers = new TypeHandler<?>[keyProperties.length];
     for (int i = 0; i < keyProperties.length; i++) {
       if (metaParam.hasSetter(keyProperties[i])) {
@@ -226,12 +247,26 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     return typeHandlers;
   }
 
+  /**
+   * 填充主键们
+   *
+   * @param rs
+   * @param metaParam
+   * @param keyProperties
+   * @param typeHandlers
+   * @throws SQLException
+   */
   private void populateKeys(ResultSet rs, MetaObject metaParam, String[] keyProperties, TypeHandler<?>[] typeHandlers) throws SQLException {
+    // 遍历 keyProperties
     for (int i = 0; i < keyProperties.length; i++) {
+      // 获得属性名
       String property = keyProperties[i];
+      // 获得 TypeHandler 对象
       TypeHandler<?> th = typeHandlers[i];
       if (th != null) {
+        // 从 rs 中，获得对应的 值
         Object value = th.getResult(rs, i + 1);
+        // 设置到 metaParam 的对应 property 属性种
         metaParam.setValue(property, value);
       }
     }
