@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.apache.ibatis.executor.loader.ProxyFactory</OriginalElement>
+  <nodes>
+    <node x="1140.5" y="395.0">org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory</node>
+    <node x="824.0" y="475.0">org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.EnhancedDeserializationProxyImpl</node>
+    <node x="221.0" y="550.0">org.apache.ibatis.executor.loader.ResultLoader</node>
+    <node x="243.0" y="240.0">org.apache.ibatis.executor.loader.javassist.JavassistSerialStateHolder</node>
+    <node x="0.0" y="475.0">org.apache.ibatis.executor.loader.CglibProxyFactory</node>
+    <node x="278.5" y="80.0">java.io.Externalizable</node>
+    <node x="736.0" y="315.0">org.apache.ibatis.executor.loader.ProxyFactory</node>
+    <node x="172.0" y="475.0">org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.EnhancedResultObjectProxyImpl</node>
+    <node x="1413.0" y="475.0">org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.EnhancedResultObjectProxyImpl</node>
+    <node x="427.00000000000006" y="475.0">org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.LogHolder</node>
+    <node x="679.5" y="395.0">org.apache.ibatis.executor.loader.AbstractEnhancedDeserializationProxy</node>
+    <node x="462.0" y="240.0">org.apache.ibatis.executor.loader.cglib.CglibSerialStateHolder</node>
+    <node x="1221.0" y="475.0">org.apache.ibatis.executor.loader.JavassistProxyFactory</node>
+    <node x="426.5" y="80.0">org.apache.ibatis.executor.loader.ResultLoaderMap.LoadPair</node>
+    <node x="545.5" y="80.0">org.apache.ibatis.executor.loader.ResultLoaderMap.ClosedExecutor</node>
+    <node x="1091.0" y="475.0">org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.LogHolder</node>
+    <node x="0.0" y="550.0">org.apache.ibatis.executor.loader.WriteReplaceInterface</node>
+    <node x="339.875" y="0.0">java.io.Serializable</node>
+    <node x="309.75000000000006" y="395.0">org.apache.ibatis.executor.loader.cglib.CglibProxyFactory</node>
+    <node x="557.0" y="475.0">org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.EnhancedDeserializationProxyImpl</node>
+    <node x="482.125" y="0.0">org.apache.ibatis.executor.loader.ResultLoaderMap</node>
+    <node x="0.0" y="240.0">org.apache.ibatis.executor.loader.AbstractSerialStateHolder.LookAheadObjectInputStream</node>
+    <node x="244.0" y="160.0">org.apache.ibatis.executor.loader.AbstractSerialStateHolder</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistSerialStateHolder" target="org.apache.ibatis.executor.loader.AbstractSerialStateHolder">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.LogHolder" target="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="482.00000000000006" y="455.0" />
+      <point x="404.75000000000006" y="455.0" />
+      <point x="19.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.JavassistProxyFactory" target="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory">
+      <point x="-5.6843418860808015E-14" y="-15.0" />
+      <point x="1307.0" y="455.0" />
+      <point x="1248.0" y="455.0" />
+      <point x="21.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.CglibProxyFactory" target="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="76.0" y="445.0" />
+      <point x="328.75000000000006" y="445.0" />
+      <point x="-57.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory" target="org.apache.ibatis.executor.loader.ProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="1226.5" y="370.0" />
+      <point x="827.5" y="370.0" />
+      <point x="30.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.EnhancedResultObjectProxyImpl" target="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="289.5" y="455.0" />
+      <point x="366.75000000000006" y="455.0" />
+      <point x="-19.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.AbstractSerialStateHolder.LookAheadObjectInputStream" target="org.apache.ibatis.executor.loader.AbstractSerialStateHolder">
+      <point x="0.0" y="-15.0" />
+      <point x="111.5" y="215.0" />
+      <point x="276.8333333333333" y="215.0" />
+      <point x="-65.66666666666669" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.EnhancedDeserializationProxyImpl" target="org.apache.ibatis.executor.loader.AbstractEnhancedDeserializationProxy">
+      <point x="-61.75" y="-15.0" />
+      <point x="885.75" y="455.0" />
+      <point x="881.25" y="455.0" />
+      <point x="67.25" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibSerialStateHolder" target="org.apache.ibatis.executor.loader.AbstractSerialStateHolder">
+      <point x="0.0" y="-15.0" />
+      <point x="551.5" y="215.0" />
+      <point x="408.1666666666667" y="215.0" />
+      <point x="65.66666666666669" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.ResultLoaderMap.LoadPair" target="java.io.Serializable">
+      <point x="-24.75" y="-15.0" />
+      <point x="451.25" y="55.0" />
+      <point x="425.375" y="55.0" />
+      <point x="28.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.EnhancedResultObjectProxyImpl" target="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="1530.5" y="445.0" />
+      <point x="1291.0" y="445.0" />
+      <point x="64.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.ResultLoaderMap.LoadPair" target="org.apache.ibatis.executor.loader.ResultLoaderMap">
+      <point x="24.75" y="-15.0" />
+      <point x="500.75" y="55.0" />
+      <point x="519.875" y="55.0" />
+      <point x="-37.75" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.EnhancedDeserializationProxyImpl" target="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory">
+      <point x="-61.75" y="-15.0" />
+      <point x="618.75" y="445.0" />
+      <point x="442.75000000000006" y="445.0" />
+      <point x="57.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.EnhancedDeserializationProxyImpl" target="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory">
+      <point x="61.75" y="-15.0" />
+      <point x="1009.25" y="445.0" />
+      <point x="1162.0" y="445.0" />
+      <point x="-64.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory" target="org.apache.ibatis.executor.loader.ProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="385.75000000000006" y="370.0" />
+      <point x="766.5" y="370.0" />
+      <point x="-30.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory.LogHolder" target="org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory">
+      <point x="0.0" y="-15.0" />
+      <point x="1146.0" y="455.0" />
+      <point x="1205.0" y="455.0" />
+      <point x="-21.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.cglib.CglibProxyFactory.EnhancedDeserializationProxyImpl" target="org.apache.ibatis.executor.loader.AbstractEnhancedDeserializationProxy">
+      <point x="61.75" y="-15.0" />
+      <point x="742.25" y="455.0" />
+      <point x="746.75" y="455.0" />
+      <point x="-67.25" y="15.0" />
+    </edge>
+    <edge source="java.io.Externalizable" target="java.io.Serializable">
+      <point x="0.0" y="-15.0" />
+      <point x="342.5" y="55.0" />
+      <point x="368.375" y="55.0" />
+      <point x="-28.5" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.ResultLoaderMap.ClosedExecutor" target="org.apache.ibatis.executor.loader.ResultLoaderMap">
+      <point x="0.0" y="-15.0" />
+      <point x="614.5" y="55.0" />
+      <point x="595.375" y="55.0" />
+      <point x="37.75" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.executor.loader.AbstractSerialStateHolder" target="java.io.Externalizable">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.8255395683453237" x="824.0" y="290.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
