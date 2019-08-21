@@ -44,6 +44,7 @@ public interface Interceptor {
   /**
    * 设置拦截器属性
    *
+   *
    * @param properties 属性
    */
   void setProperties(Properties properties);
