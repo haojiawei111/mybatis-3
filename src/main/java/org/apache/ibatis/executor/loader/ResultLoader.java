@@ -35,6 +35,8 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
+ * 在 DefaultResultSetHandler 的 #getNestedQueryConstructorValue(ResultSet rs, ResultMapping constructorMapping, String columnPrefix) 方法中，
+ * 我们可以看到 ResultLoader 的身影
  * @author Clinton Begin
  */
 public class ResultLoader {
