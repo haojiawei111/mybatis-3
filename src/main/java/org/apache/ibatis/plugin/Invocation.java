@@ -19,6 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 方法调用信息，作为 Interceptor#intercept(Invocation invocation) 的方法参数。
+ *
  * @author Clinton Begin
  */
 public class Invocation {
