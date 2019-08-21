@@ -36,6 +36,10 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ * 继承 BaseStatementHandler 抽象类，java.sql.CallableStatement 的 StatementHandler 实现类
+ *
+ *     CallableStatement 继承自PreparedStatement,支持带参数的SQL操作;
+ * 　　支持调用存储过程,提供了对输出和输入/输出参数(INOUT)的支持;
  * @author Clinton Begin
  */
 public class CallableStatementHandler extends BaseStatementHandler {
