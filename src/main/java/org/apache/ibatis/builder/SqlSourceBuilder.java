@@ -29,6 +29,8 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ * 继承 BaseBuilder 抽象类，SqlSource 构建器，负责将 SQL 语句中的 #{} 替换成相应的 ? 占位符，并获取该 ? 占位符对应的 org.apache.ibatis.mapping.ParameterMapping 对象
+ *
  * @author Clinton Begin
  */
 public class SqlSourceBuilder extends BaseBuilder {
@@ -39,22 +41,49 @@ public class SqlSourceBuilder extends BaseBuilder {
     super(configuration);
   }
 
+  /**
+   * 执行解析原始 SQL ，成为 SqlSource 对象
+   *
+   * @param originalSql
+   * @param parameterType
+   * @param additionalParameters
+   * @return
+   */
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
+    // <1> 创建 ParameterMappingTokenHandler 对象
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
+    // <2> 创建 GenericTokenParser 对象
     GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
+    // <3> 执行解析
+    // 如果匹配到 #{ + } 对后，会调用 ParameterMappingTokenHandler 对应的 #handleToken(String content) 方法
     String sql = parser.parse(originalSql);
+    // <4> 创建 StaticSqlSource 对象
     return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
   }
 
+  /**
+   * ParameterMappingTokenHandler ，实现 TokenHandler 接口，继承 BaseBuilder 抽象类，
+   * 负责将匹配到的 #{ 和 } 对，替换成相应的 ? 占位符，并获取该 ? 占位符对应的 org.apache.ibatis.mapping.ParameterMapping 对象
+   */
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
+    /**
+     * ParameterMapping 数组
+     */
     private List<ParameterMapping> parameterMappings = new ArrayList<>();
+    /**
+     * 参数类型
+     */
     private Class<?> parameterType;
+    /**
+     * additionalParameters 参数的对应的 MetaObject 对象
+     */
     private MetaObject metaParameters;
 
     public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType, Map<String, Object> additionalParameters) {
       super(configuration);
       this.parameterType = parameterType;
+      // 创建 additionalParameters 参数的对应的 MetaObject 对象
       this.metaParameters = configuration.newMetaObject(additionalParameters);
     }
 

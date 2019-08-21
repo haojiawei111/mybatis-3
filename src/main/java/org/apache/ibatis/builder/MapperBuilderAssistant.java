@@ -377,7 +377,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .useCache(valueOrDefault(useCache, isSelect))
         .cache(currentCache);
     // <3.2> 获得 ParameterMap ，并设置到 MappedStatement.Builder 中
-    //  参数集合，对应 paramType="" 或 paramMap="" 标签属性
+    //     参数集合，对应 paramType="" 或 paramMap="" 标签属性
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
     if (statementParameterMap != null) {
       statementBuilder.parameterMap(statementParameterMap);
@@ -626,6 +626,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
         nestedResultMap, notNullColumn, columnPrefix, typeHandler, flags, null, null, configuration.isLazyLoadingEnabled());
   }
 
+  /**
+   * 大多数情况下，我们不会去设置使用的 LanguageDriver 类，而是使用 XMLLanguageDriver 类。
+   * 从 #getLanguageDriver(Class<? extends LanguageDriver> langClass) 方法，可知
+   *
+   * @param langClass
+   * @return
+   */
   public LanguageDriver getLanguageDriver(Class<? extends LanguageDriver> langClass) {
     // 获得 langClass 类
     if (langClass != null) {

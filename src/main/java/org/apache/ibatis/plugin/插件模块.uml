@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.apache.ibatis.plugin.Interceptor</OriginalElement>
+  <nodes>
+    <node x="31.5" y="232.0">org.apache.ibatis.plugin.Plugin</node>
+    <node x="57.75" y="0.0">java.lang.annotation.Annotation</node>
+    <node x="0.0" y="153.0">java.lang.reflect.InvocationHandler</node>
+    <node x="0.0" y="306.0">org.apache.ibatis.plugin.Interceptor</node>
+    <node x="121.0" y="79.0">org.apache.ibatis.plugin.Signature</node>
+    <node x="152.0" y="306.0">org.apache.ibatis.plugin.Invocation</node>
+    <node x="0.0" y="79.0">org.apache.ibatis.plugin.Intercepts</node>
+    <node x="189.0" y="153.0">org.apache.ibatis.plugin.InterceptorChain</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.apache.ibatis.plugin.Intercepts" target="java.lang.annotation.Annotation">
+      <point x="0.0" y="-14.5" />
+      <point x="50.5" y="54.0" />
+      <point x="84.0" y="54.0" />
+      <point x="-26.25" y="14.5" />
+    </edge>
+    <edge source="org.apache.ibatis.plugin.Plugin" target="java.lang.reflect.InvocationHandler">
+      <point x="0.0" y="-14.5" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="org.apache.ibatis.plugin.Signature" target="java.lang.annotation.Annotation">
+      <point x="0.0" y="-14.5" />
+      <point x="170.0" y="54.0" />
+      <point x="136.5" y="54.0" />
+      <point x="26.25" y="14.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="163.0" y="167.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
