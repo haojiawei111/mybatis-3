@@ -30,6 +30,16 @@ import org.apache.ibatis.transaction.Transaction;
 /**
  * 执行器接口
  *
+ * 读和写操作相关的方法
+ * 事务相关的方法
+ * 缓存相关的方法
+ * 设置延迟加载的方法
+ * 设置包装的 Executor 对象的方法
+ *
+ * Executor 的直接子类有 BaseExecutor 和 CachingExecutor 两个
+ * CachingExecutor 在 BaseExecutor 的基础上，实现二级缓存功能
+ * BaseExecutor 的本地缓存，就是一级缓存
+ *
  * @author Clinton Begin
  */
 public interface Executor {

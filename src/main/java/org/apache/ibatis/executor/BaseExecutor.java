@@ -45,31 +45,55 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 实现 Executor 接口，提供骨架方法，从而使子类只要实现指定的几个抽象方法即可
+ *
  * @author Clinton Begin
  */
 public abstract class BaseExecutor implements Executor {
 
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
 
+  /**
+   * 事务对象
+   */
   protected Transaction transaction;
+  /**
+   * 包装的 Executor 对象
+   */
   protected Executor wrapper;
 
+  /**
+   * DeferredLoad( 延迟加载 ) 队列
+   */
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
+  /**
+   * 本地缓存，即一级缓存
+   */
   protected PerpetualCache localCache;
+  /**
+   * 本地输出类型的参数的缓存
+   */
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
 
+  /**
+   * 记录嵌套查询的层级
+   */
   protected int queryStack;
+  /**
+   * 是否关闭
+   */
   private boolean closed;
 
   protected BaseExecutor(Configuration configuration, Transaction transaction) {
     this.transaction = transaction;
+    // deferredLoads 属性，DeferredLoad( 延迟加载 ) 队列
     this.deferredLoads = new ConcurrentLinkedQueue<>();
     this.localCache = new PerpetualCache("LocalCache");
     this.localOutputParameterCache = new PerpetualCache("LocalOutputParameterCache");
     this.closed = false;
     this.configuration = configuration;
-    this.wrapper = this;
+    this.wrapper = this;// 自己
   }
 
   @Override
