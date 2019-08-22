@@ -16,8 +16,13 @@
 package org.apache.ibatis.executor;
 
 /**
+ * 在缓存中，添加占位对象。此处的占位符，和延迟加载有关
+ *
  * @author Clinton Begin
  */
 public enum ExecutionPlaceholder {
+  /**
+   * 正在执行中的占位符
+   */
   EXECUTION_PLACEHOLDER
 }
