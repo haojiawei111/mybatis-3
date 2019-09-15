@@ -34,10 +34,22 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 继承 BaseExecutor 抽象类，可重用的 Executor 实现类
+ *
+ *
+ * 每次开始读或写操作，优先从缓存中获取对应的 Statement 对象。如果不存在，才进行创建。
+ * 执行完成后，不关闭该 Statement 对象。
+ * 其它的，和 SimpleExecutor 是一致的。
+ *
  * @author Clinton Begin
  */
 public class ReuseExecutor extends BaseExecutor {
 
+  /**
+   * Statement 的缓存
+   *
+   * KEY ：SQL
+   */
   private final Map<String, Statement> statementMap = new HashMap<>();
 
   public ReuseExecutor(Configuration configuration, Transaction transaction) {
@@ -55,8 +67,12 @@ public class ReuseExecutor extends BaseExecutor {
   @Override
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Configuration configuration = ms.getConfiguration();
+    // 创建 StatementHandler 对象
     StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+    // <1> 初始化 StatementHandler 对象
+    // 调用 #prepareStatement(StatementHandler handler, Log statementLog) 方法，初始化 StatementHandler 对象
     Statement stmt = prepareStatement(handler, ms.getStatementLog());
+    // 执行 StatementHandler  ，进行读操作
     return handler.query(stmt, resultHandler);
   }
 
@@ -77,22 +93,46 @@ public class ReuseExecutor extends BaseExecutor {
     return Collections.emptyList();
   }
 
+  /**
+   * 调用 #prepareStatement(StatementHandler handler, Log statementLog) 方法，初始化 StatementHandler 对象
+   *
+   * @param handler
+   * @param statementLog
+   * @return
+   * @throws SQLException
+   */
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
     BoundSql boundSql = handler.getBoundSql();
     String sql = boundSql.getSql();
+    // 存在
     if (hasStatementFor(sql)) {
+      // <1.1> 从缓存中获得 Statement 或 PrepareStatement 对象
       stmt = getStatement(sql);
+      // <1.2> 设置事务超时时间
       applyTransactionTimeout(stmt);
+      // 不存在
     } else {
+      // <2.1> 获得 Connection 对象
       Connection connection = getConnection(statementLog);
+      // <2.2> 创建 Statement 或 PrepareStatement 对象
+      // 调用 StatementHandler#prepare(Connection connection, Integer transactionTimeout) 方法，创建 Statement 或 PrepareStatement 对象
       stmt = handler.prepare(connection, transaction.getTimeout());
+      // <2.3> 添加到缓存中
+      // 调用 #putStatement(String sql, Statement stmt) 方法，添加 Statement 对象到缓存中
       putStatement(sql, stmt);
     }
+    // <2> 设置 SQL 上的参数，例如 PrepareStatement 对象上的占位符
     handler.parameterize(stmt);
     return stmt;
   }
 
+  /**
+   * 判断是否存在对应的 Statement 对象
+   *
+   * @param sql
+   * @return
+   */
   private boolean hasStatementFor(String sql) {
     try {
       return statementMap.keySet().contains(sql) && !statementMap.get(sql).getConnection().isClosed();
@@ -101,6 +141,12 @@ public class ReuseExecutor extends BaseExecutor {
     }
   }
 
+  /**
+   * 获得 Statement 对象
+   *
+   * @param s
+   * @return
+   */
   private Statement getStatement(String s) {
     return statementMap.get(s);
   }
