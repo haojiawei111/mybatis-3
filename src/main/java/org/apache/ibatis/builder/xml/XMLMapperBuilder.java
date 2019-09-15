@@ -110,7 +110,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   public void parse() {
     // <1> 判断当前 Mapper 是否已经加载过
     if (!configuration.isResourceLoaded(resource)) {
-      // <2> 解析 `<mapper />` 节点
+      // <2> 解析 `<mapper />`各节点
       configurationElement(parser.evalNode("*[local-name()='mapper']"));
       // <3> 标记该 Mapper 已经加载过
       configuration.addLoadedResource(resource);
@@ -118,8 +118,9 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
-    // 三个方法的逻辑思路基本一致：获得对应的集合；2）遍历集合，执行解析；3）执行成功，则移除出集合；4）执行失败，忽略异常
+    // TODO：上面解析失败有可能是应为依赖不全，下面三个方法用来解析上面因为依赖不全解析失败的情况
 
+    // 三个方法的逻辑思路基本一致：获得对应的集合；2）遍历集合，执行解析；3）执行成功，则移除出集合；4）执行失败，忽略异常
     // <5> 解析待定的 <resultMap /> 节点
     parsePendingResultMaps();
     // <6> 解析待定的 <cache-ref /> 节点
@@ -160,7 +161,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // <4> 解析 <resultMap /> 节点们
       resultMapElements(context.evalNodes("*[local-name()='resultMap']"));
 
-      // <5> 解析 <sql /> 节点们
+      // <5> 解析 <sql /> 节点们 可被其他语句引用的可重用语句块的集合
       sqlElement(context.evalNodes("*[local-name()='sql']"));
 
       // <6> 解析 <select /> <insert /> <update /> <delete /> 节点们
@@ -193,7 +194,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     // <1> 遍历 <select /> <insert /> <update /> <delete /> 节点们
     for (XNode context : list) {
       // <1> 创建 XMLStatementBuilder 对象，执行解析
-      // 遍历 <select />、<insert />、<update />、<delete /> 节点们，逐个创建 XMLStatementBuilder 对象，执行解析
+      // TODO: 遍历 <select />、<insert />、<update />、<delete /> 节点们，逐个创建 XMLStatementBuilder 对象，执行解析
       final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context, requiredDatabaseId);
       try {
         statementParser.parseStatementNode();
@@ -372,6 +373,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   // 解析 <resultMap /> 节点
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+    // TODO: 获得 id、type、extends、autoMapping 属性，并解析 type 对应的类型。
     // <1> 获得 id 属性
     String id = resultMapNode.getStringAttribute("id",
             resultMapNode.getValueBasedIdentifier());
@@ -392,7 +394,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
     Discriminator discriminator = null;
 
-    // <2> 创建 ResultMapping 集合  遍历 <resultMap /> 的子节点们
+    // TODO: 创建 ResultMapping 集合，后遍历 <resultMap /> 的子节点们，将每一个子节点解析成一个或多个 ResultMapping 对象，添加到集合中
     List<ResultMapping> resultMappings = new ArrayList<>();
     resultMappings.addAll(additionalResultMappings);
     // <2> 遍历 <resultMap /> 的子节点
@@ -512,8 +514,8 @@ public class XMLMapperBuilder extends BaseBuilder {
     for (XNode context : list) {
       // <2> 获得 databaseId 属性
       String databaseId = context.getStringAttribute("databaseId");
-      // <3> 获得完整的 id 属性，格式为 `${namespace}.${id}` 。
       String id = context.getStringAttribute("id");
+      // <3> 获得完整的 id 属性，格式为 `${namespace}.${id}` 。
       id = builderAssistant.applyCurrentNamespace(id, false);
       // <4> 判断 databaseId 是否匹配
       // 调用 #databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) 方法，判断 databaseId 是否匹配
@@ -636,7 +638,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   private void bindMapperForNamespace() {
     String namespace = builderAssistant.getCurrentNamespace();
     if (namespace != null) {
-      // <1> 获得 Mapper 映射配置文件对应的 Mapper 接口，实际上类名就是 namespace 。
+      // 获得 Mapper 映射配置文件对应的 Mapper 接口，实际上类名就是 namespace 。
       Class<?> boundType = null;
       try {
         boundType = Resources.classForName(namespace);

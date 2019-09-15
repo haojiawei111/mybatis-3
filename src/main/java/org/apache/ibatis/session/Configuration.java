@@ -180,6 +180,9 @@ public class Configuration {
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  /**
+   * Mapper.xml 配置文件中<select />、<insert />、<update />、<delete /> 节点们配置的lang属性都是从这里拿的
+   */
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   /**
@@ -209,21 +212,27 @@ public class Configuration {
   /**
    * 加载过的资源
    * mybatis-config.xml <mappers>标签里面的子标签
-   * 加载一个resource或url资源就往这个set里面添加一个，表示已经加载过了，避免重复加载
+   * 加载一个mapper接口、resource或url资源就往这个set里面添加一个，表示已经加载过了，避免重复加载
    */
   protected final Set<String> loadedResources = new HashSet<>();
+
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
   /**
    * XMLStatementBuilder 集合
+   * 解析<select />、<insert />、<update />、<delete /> 节点们失败，说明有依赖的信息不全
+   * 所以调用 Configuration#addIncompleteStatement(XMLStatementBuilder incompleteStatement) 方法，添加到 Configuration 的 incompleteStatement 中
    */
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
   /**
    * CacheRefResolver 集合
+   * 解析<cache-ref /> 节点失败，说明有依赖的信息不全
    * 这个集合是在加载Cache的时候报错了，这个可能是Cache还没加载
    */
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   /**
    * ResultMapResolver 集合
+   * 解析<resultMap /> 节点失败，说明有依赖的信息不全
+   * 所以调用 Configuration#addIncompleteResultMap(ResultMapResolver resultMapResolver) 方法，添加到 Configuration 的 incompleteResultMaps 中
    */
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
@@ -249,6 +258,7 @@ public class Configuration {
   }
 
   public Configuration() {
+    // TODO： 默认别名
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 
@@ -278,7 +288,8 @@ public class Configuration {
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
-    // 注册到 languageRegistry 中   默认情况下，使用 XMLLanguageDriver 类。
+
+    // TODO:注册到 languageRegistry 中   默认情况下，使用 XMLLanguageDriver 类。
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
   }

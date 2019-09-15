@@ -636,6 +636,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
   public LanguageDriver getLanguageDriver(Class<? extends LanguageDriver> langClass) {
     // 获得 langClass 类
     if (langClass != null) {
+      // 先注册
       configuration.getLanguageRegistry().register(langClass);
     } else {
       // 如果为空，则使用默认类

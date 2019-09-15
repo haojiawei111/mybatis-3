@@ -62,6 +62,7 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   /**
+   * 解析<select />、<insert />、<update />、<delete /> 节点们
    * 执行 Statement 解析
    */
   public void parseStatementNode() {
@@ -73,6 +74,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
       return;
     }
+
     // <3> 获得各种属性
     Integer fetchSize = context.getIntAttribute("fetchSize");
     Integer timeout = context.getIntAttribute("timeout");
