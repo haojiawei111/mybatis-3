@@ -49,8 +49,11 @@ public class Reflector {
   private final Class<?> type;
   private final String[] readablePropertyNames;
   private final String[] writeablePropertyNames;
+  // set方法
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  // get方法
   private final Map<String, Invoker> getMethods = new HashMap<>();
+
   private final Map<String, Class<?>> setTypes = new HashMap<>();
   private final Map<String, Class<?>> getTypes = new HashMap<>();
   private Constructor<?> defaultConstructor;

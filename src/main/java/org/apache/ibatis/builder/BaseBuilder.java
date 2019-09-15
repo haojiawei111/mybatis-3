@@ -37,10 +37,19 @@ public abstract class BaseBuilder {
    * XML 和注解中解析到的配置，最终都会设置到 org.apache.ibatis.session.Configuration 中。
    */
   protected final Configuration configuration;
+  /**
+   * 别名管理
+   * mybatis-config.xml <typeAliases>标签配置
+   */
   protected final TypeAliasRegistry typeAliasRegistry;
+  /**
+   * 类型处理器
+   * mybatis-config.xml <typeHandlers>标签配置
+   */
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {
+    // this.configuration = org.apache.ibatis.session.Configuration
     this.configuration = configuration;
     this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
@@ -60,14 +69,17 @@ public abstract class BaseBuilder {
   protected Pattern parseExpression(String regex, String defaultValue) {
     return Pattern.compile(regex == null ? defaultValue : regex);
   }
+
   // 将字符串转换成boolean
   protected Boolean booleanValueOf(String value, Boolean defaultValue) {
     return value == null ? defaultValue : Boolean.valueOf(value);
   }
+
   // 将字符串转换成integer
   protected Integer integerValueOf(String value, Integer defaultValue) {
     return value == null ? defaultValue : Integer.valueOf(value);
   }
+
   // 将字符串转换成string
   protected Set<String> stringSetValueOf(String value, String defaultValue) {
     value = value == null ? defaultValue : value;
@@ -85,6 +97,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving JdbcType. Cause: " + e, e);
     }
   }
+
   // 解析对应的 ResultSetType 类型
   protected ResultSetType resolveResultSetType(String alias) {
     if (alias == null) {
@@ -96,6 +109,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ResultSetType. Cause: " + e, e);
     }
   }
+
   // 解析对应的 ParameterMode 类型
   protected ParameterMode resolveParameterMode(String alias) {
     if (alias == null) {
@@ -107,6 +121,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ParameterMode. Cause: " + e, e);
     }
   }
+
   // 创建指定对象
   protected Object createInstance(String alias) {
     // 获得对应的类型

@@ -98,6 +98,7 @@ public class Configuration {
 
   /**
    * DB Environment 对象
+   * mybatis-config.xml <environments> 节点配置
    */
   protected Environment environment;
 
@@ -114,7 +115,9 @@ public class Configuration {
   protected boolean returnInstanceForEmptyRow;
 
   protected String logPrefix;
+  // mybatis-config.xml <settings>标签中配置的 logImpl 实现类
   protected Class <? extends Log> logImpl;
+  // mybatis-config.xml <settings>标签中配置的 vfsImpl 实现类
   protected Class <? extends VFS> vfsImpl;
   /**
    * {@link BaseExecutor} 本地缓存范围
@@ -128,17 +131,24 @@ public class Configuration {
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+  // 此属性是在创建Configuration时候构造函数传入的属性
+  // TODO:可以覆盖配置文件中的properties配置的属性
+  // 最终properties配置的参数会放入到这个Properties对象中
   protected Properties variables = new Properties();
+
   /**
    * ReflectorFactory 对象
+   * mybatis-config.xml <reflectorFactory /> 节点配置
    */
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
   /**
    * ObjectFactory 对象
+   * mybatis-config.xml <objectFactory /> 节点配置
    */
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   /**
    * ObjectWrapperFactory 对象
+   * mybatis-config.xml <objectWrapperFactory /> 节点配置
    */
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
@@ -147,6 +157,8 @@ public class Configuration {
 
   /**
    * 数据库标识
+   * 可以通过自定义databaseIdProvider获取
+   * mybatis-config.xml <databaseIdProvider /> 标签配置
    */
   protected String databaseId;
   /**
@@ -163,6 +175,7 @@ public class Configuration {
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
   /**
    * 拦截器链
+   * mybatis-config.xml <plugins /> 标签配置的
    */
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
@@ -179,6 +192,7 @@ public class Configuration {
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
   /**
    * Cache 对象集合
+   * 各个mappers.xml 里面配置
    *
    * KEY：命名空间 namespace
    */
@@ -194,6 +208,8 @@ public class Configuration {
 
   /**
    * 加载过的资源
+   * mybatis-config.xml <mappers>标签里面的子标签
+   * 加载一个resource或url资源就往这个set里面添加一个，表示已经加载过了，避免重复加载
    */
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
@@ -203,6 +219,7 @@ public class Configuration {
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
   /**
    * CacheRefResolver 集合
+   * 这个集合是在加载Cache的时候报错了，这个可能是Cache还没加载
    */
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   /**
@@ -217,6 +234,9 @@ public class Configuration {
    * namespace which the actual cache is bound to.
    *
    * Cache 指向的映射
+   * 配置在Mapper.xml中
+   * key：<mapper>标签的Namespace
+   * value：<cache-ref>标签的Namespace
    *
    * @see #addCacheRef(String, String)
    * @see org.apache.ibatis.builder.xml.XMLMapperBuilder#cacheRefElement(XNode)

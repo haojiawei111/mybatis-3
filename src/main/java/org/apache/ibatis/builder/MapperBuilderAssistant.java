@@ -85,7 +85,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace;
   }
 
-  // 设置 currentNamespace 属性
+  // 设置 currentNamespace 属性 ，只能设置一次，多次调用只能传入相同值
   public void setCurrentNamespace(String currentNamespace) {
     // 如果传入的 currentNamespace 参数为空，抛出 BuilderException 异常
     if (currentNamespace == null) {

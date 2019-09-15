@@ -66,7 +66,7 @@ public class XMLMapperBuilder extends BaseBuilder {
    */
   private final MapperBuilderAssistant builderAssistant;
   /**
-   * 可被其他语句引用的可重用语句块的集合
+   * TODO：可被其他语句引用的可重用语句块的集合
    *
    * 例如：<sql id="userColumns"> ${alias}.id,${alias}.username,${alias}.password </sql>
    */
@@ -140,22 +140,29 @@ public class XMLMapperBuilder extends BaseBuilder {
   private void configurationElement(XNode context) {
     try {
       // <1> 获得 namespace 属性
+      // TODO: <mapper>标签的属性 命名空间必须配置
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       // <1> 设置 namespace 属性  获得 namespace 属性，并设置到 MapperAnnotationBuilder 中
       builderAssistant.setCurrentNamespace(namespace);
+
       // <2> 解析 <cache-ref /> 节点
       cacheRefElement(context.evalNode("*[local-name()='cache-ref']"));
+
       // <3> 解析 <cache /> 节点
       cacheElement(context.evalNode("*[local-name()='cache']"));
+
       // 已废弃！老式风格的参数映射。内联参数是首选,这个元素可能在将来被移除，这里不会记录。
       parameterMapElement(context.evalNodes("*[local-name()='parameterMap']"));
+
       // <4> 解析 <resultMap /> 节点们
       resultMapElements(context.evalNodes("*[local-name()='resultMap']"));
+
       // <5> 解析 <sql /> 节点们
       sqlElement(context.evalNodes("*[local-name()='sql']"));
+
       // <6> 解析 <select /> <insert /> <update /> <delete /> 节点们
       buildStatementFromContext(context.evalNodes("*[local-name()='select' or local-name()='insert' or local-name()='update' or local-name()='delete']"));
     } catch (Exception e) {
@@ -267,6 +274,8 @@ public class XMLMapperBuilder extends BaseBuilder {
       // <2> 创建 CacheRefResolver 对象，并执行解析
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant, context.getStringAttribute("namespace"));
       try {
+        // TODO:这一步获取Cache并赋值给了上面传入的builderAssistant的currentCache属性
+        // 实际是通过Configuration对象get出Cache的
         cacheRefResolver.resolveCacheRef();
       } catch (IncompleteElementException e) {
         // <3> 解析失败，添加到 configuration 的 incompleteCacheRefs 中
@@ -291,12 +300,15 @@ public class XMLMapperBuilder extends BaseBuilder {
    */
   private void cacheElement(XNode context) {
     if (context != null) {
-      // <1> 获得负责存储的 Cache 实现类
+      // <1> 获得负责存储的 Cache 实现类，默认是PERPETUAL
       String type = context.getStringAttribute("type", "PERPETUAL");
+      // 从别名里面拿Cache类，没有注册别名就直接反射拿Class对象
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
-      // <2> 获得负责过期的 Cache 实现类
+      // <2> 获得负责过期的 Cache 实现类，默认是LRU
       String eviction = context.getStringAttribute("eviction", "LRU");
+      // 从别名里面拿Cache类，没有注册别名就直接反射拿Class对象
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+
       // <3> 获得 flushInterval、size、readWrite、blocking 属性
       Long flushInterval = context.getLongAttribute("flushInterval");
       Integer size = context.getIntAttribute("size");
@@ -305,6 +317,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // <4> 获得 Properties 属性
       Properties props = context.getChildrenAsProperties();
       // <5> 创建 Cache 对象  调用 MapperBuilderAssistant#useNewCache(...) 方法，创建 Cache 对象。
+      // TODO: 这里会覆盖builderAssistant的currentCache属性的值
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }

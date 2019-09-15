@@ -18,6 +18,13 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ * 例如：
+ * fullname = "loca[lCacheScope.123";
+ * name="loca"
+ * indexedName="loca[lCacheScope"
+ * index="lCacheScope"
+ * children="123"
+ *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {

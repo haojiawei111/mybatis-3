@@ -48,6 +48,8 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * mybatis中已经事先注册好了绝大多数的类型转换器
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

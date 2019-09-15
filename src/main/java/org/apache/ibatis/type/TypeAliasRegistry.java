@@ -33,13 +33,18 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * TODO: 注册、管理别名
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
 
+  /**
+   * 存储typeAliases下配置的 别名
+   */
   private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<>();
 
   public TypeAliasRegistry() {
+    // 默认的一些别名
     registerAlias("string", String.class);
 
     registerAlias("byte", Byte.class);
@@ -113,6 +118,7 @@ public class TypeAliasRegistry {
       if (TYPE_ALIASES.containsKey(key)) {
         value = (Class<T>) TYPE_ALIASES.get(key);
       } else {
+        // 没有包含就直接反射拿Class对象
         value = (Class<T>) Resources.classForName(string);
       }
       return value;
@@ -139,6 +145,7 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(Class<?> type) {
+    // 默认别名是类名（首字母小写）
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {

@@ -103,7 +103,8 @@ public class SqlSessionFactoryBuilder {
       }
     }
   }
-    
+
+  // TODO:创建 DefaultSqlSessionFactory 对象
   public SqlSessionFactory build(Configuration config) {
     return new DefaultSqlSessionFactory(config);
   }

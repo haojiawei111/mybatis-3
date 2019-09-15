@@ -61,6 +61,8 @@ public class XPathParser {
   private final Document document;
   private boolean validation;
   private EntityResolver entityResolver;
+
+  // TODO:用户配置的<properties>标签和创建configuration对象传入的Properties对象的综合
   private Properties variables;
   private XPath xpath;
 
