@@ -282,6 +282,12 @@ public class ResultLoaderMap {
     }
   }
 
+  /**
+   * TODO：继承 BaseExecutor 抽象类，已经关闭的 Executor 实现类
+   *
+   * 仅仅在 ResultLoaderMap 中，作为一个“空”的 Executor 对象。没有什么特殊的意义和用途。
+   *
+   */
   private static final class ClosedExecutor extends BaseExecutor {
 
     public ClosedExecutor() {
