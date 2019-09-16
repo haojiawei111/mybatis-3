@@ -33,12 +33,15 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * CachingExecutor 在 BaseExecutor 的基础上，实现二级缓存功能。
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
 public class CachingExecutor implements Executor {
 
   private final Executor delegate;
+  // 二级缓存 事务缓存管理器
   private final TransactionalCacheManager tcm = new TransactionalCacheManager();
 
   public CachingExecutor(Executor delegate) {

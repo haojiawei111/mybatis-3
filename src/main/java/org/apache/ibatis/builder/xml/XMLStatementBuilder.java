@@ -80,6 +80,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     Integer timeout = context.getIntAttribute("timeout");
     String parameterMap = context.getStringAttribute("parameterMap");
     String parameterType = context.getStringAttribute("parameterType");
+    // 尝试从别名里面拿到parameterType，如果没有配置别名那就通过反射拿到
     Class<?> parameterTypeClass = resolveClass(parameterType);
     String resultMap = context.getStringAttribute("resultMap");
     String resultType = context.getStringAttribute("resultType");
@@ -90,6 +91,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // <5> 获得 resultType 对应的类
     Class<?> resultTypeClass = resolveClass(resultType);
+
     // <6> 获得 resultSet 对应的枚举值
     String resultSetType = context.getStringAttribute("resultSetType");
     // <7> 获得 statementType 对应的枚举值
@@ -108,6 +110,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // Include Fragments before parsing
     // <10> 创建 XMLIncludeTransformer 对象，并替换 <include /> 标签相关的内容
+    // XML <include /> 标签的转换器，负责将 SQL 中的 <include /> 标签转换成对应的 <sql /> 的内容
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
@@ -134,7 +137,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))// 其次，基于全局的 useGeneratedKeys 配置 + 是否为插入语句类型
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
-    // 创建 MappedStatement 对象
+    // TODO: 创建 MappedStatement 对象
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered, 
@@ -263,7 +266,8 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   /**
-   * 获得 lang 对应的 LanguageDriver 对象
+   * TODO: 获得 lang 对应的 LanguageDriver 对象
+   * LanguageDriver是一个非常重要的模块，负责sql语言的拼接
    * @param lang
    * @return
    */

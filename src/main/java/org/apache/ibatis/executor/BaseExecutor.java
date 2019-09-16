@@ -47,6 +47,9 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * 实现 Executor 接口，提供骨架方法，从而使子类只要实现指定的几个抽象方法即可
  *
+ * BaseExecutor 的本地缓存，就是一级缓存
+ *
+ *
  * @author Clinton Begin
  */
 public abstract class BaseExecutor implements Executor {
@@ -59,6 +62,7 @@ public abstract class BaseExecutor implements Executor {
 	protected Transaction transaction;
 	/**
 	 * 包装的 Executor 对象
+	 * 装饰者模式
 	 */
 	protected Executor    wrapper;
 
@@ -94,7 +98,8 @@ public abstract class BaseExecutor implements Executor {
 		this.localOutputParameterCache = new PerpetualCache("LocalOutputParameterCache");
 		this.closed = false;
 		this.configuration = configuration;
-		this.wrapper = this;// 自己
+		// TODO:自己
+		this.wrapper = this;
 	}
 
 	// 获得事务对象
@@ -152,7 +157,7 @@ public abstract class BaseExecutor implements Executor {
 		if (closed) {
 			throw new ExecutorException("Executor was closed.");
 		}
-		// <2> 清空本地缓存
+		// TODO: 清空本地缓存。因为，更新后，可能缓存会失效。但是，又没很好的办法，判断哪一些失效。所以，最稳妥的做法，就是全部清空。
 		clearLocalCache();
 		// <3> 执行写操作
 		return doUpdate(ms, parameter);
@@ -182,7 +187,7 @@ public abstract class BaseExecutor implements Executor {
 	// 读操作
 	@Override
 	public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-		// <1> 获得 BoundSql 对象
+		// <1> 获得 BoundSql 对象，代表一个可执行sql
 		BoundSql boundSql = ms.getBoundSql(parameter);
 		// <2> 创建 CacheKey 对象
 		CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
@@ -212,7 +217,7 @@ public abstract class BaseExecutor implements Executor {
 			throw new ExecutorException("Executor was closed.");
 		}
 		// <2> 清空本地缓存，如果 queryStack 为零，并且要求清空本地缓存。
-		// 例如： <select flushCache="true"> ... </a>
+		// 	TODO: 例如： <select flushCache="true"> ... </a>
 		if (queryStack == 0 && ms.isFlushCacheRequired()) {
 			clearLocalCache();
 		}
@@ -293,6 +298,7 @@ public abstract class BaseExecutor implements Executor {
 
 	/**
 	 * 创建 CacheKey 对象
+	 * 一级缓存的Key
 	 *
 	 * @param ms
 	 * @param parameterObject
@@ -343,7 +349,7 @@ public abstract class BaseExecutor implements Executor {
 	}
 
 	/**
-	 * 判断一级缓存是否存在
+	 * 判断一级缓存是否缓存了CacheKey
 	 *
 	 * @param ms
 	 * @param key
@@ -500,7 +506,7 @@ public abstract class BaseExecutor implements Executor {
 	 * @throws SQLException
 	 */
 	protected Connection getConnection(Log statementLog) throws SQLException {
-		// 获得 Connection 对象
+		// 从事务对象中获得 Connection 对象
 		Connection connection = transaction.getConnection();
 		// 如果 debug 日志级别，则创建 ConnectionLogger 对象，进行动态代理
 		if (statementLog.isDebugEnabled()) {
@@ -516,6 +522,7 @@ public abstract class BaseExecutor implements Executor {
 		this.wrapper = wrapper;
 	}
 
+	// TODO: 延迟加载
 	private static class DeferredLoad {
 
 		private final MetaObject      resultObject;

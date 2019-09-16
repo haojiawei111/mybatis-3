@@ -23,6 +23,13 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 实现 SqlSource 接口
+ * TODO: 静态的 SqlSource 实现类
+ *
+ * StaticSqlSource 的静态，是相对于 DynamicSqlSource 和 RawSqlSource 来说呢。实际上，StaticSqlSource.sql 属性，上面还是可能包括 ? 占位符
+ * #getBoundSql((Object parameterObject) 方法，创建 BoundSql 对象。通过 parameterMappings 和 parameterObject 属性，可以设置 sql 上的每个占位符的值
+ *
+ *
  * @author Clinton Begin
  */
 public class StaticSqlSource implements SqlSource {

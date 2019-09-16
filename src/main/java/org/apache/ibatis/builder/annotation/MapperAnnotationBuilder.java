@@ -167,6 +167,8 @@ public class MapperAnnotationBuilder {
 				}
 			}
 		}
+
+		// 解析上面代码因为依赖未加载导致的错误
 		// <8> 解析待定的方法
 		parsePendingMethods();
 	}

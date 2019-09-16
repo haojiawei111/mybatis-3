@@ -35,8 +35,8 @@ import java.util.List;
  * 继承 BaseExecutor 抽象类，简单的 Executor 实现类。
  *
  *
- * 每次开始读或写操作，都创建对应的 Statement 对象。
- * 执行完成后，关闭该 Statement 对象。
+ * TODO: 每次开始读或写操作，都创建对应的 Statement 对象。
+ * TODO: 执行完成后，关闭该 Statement 对象。
  *
  * 从此处开始，我们会看到 StatementHandler 相关的调用
  *

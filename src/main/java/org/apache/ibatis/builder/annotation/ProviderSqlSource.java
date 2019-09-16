@@ -29,6 +29,8 @@ import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * TODO:实现 SqlSource 接口，基于方法上的 @ProviderXXX 注解的 SqlSource 实现类
+ * 在MapperAnnotationBuilder中调用
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

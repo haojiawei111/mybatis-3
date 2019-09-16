@@ -137,7 +137,13 @@ public abstract class BaseBuilder {
     }
   }
 
-  // 获得对应的类型
+
+  /**
+   * 尝试从别名里面拿到alias的class对象，如果没有配置别名那就通过反射拿到
+   * @param alias
+   * @param <T>
+   * @return
+   */
   protected <T> Class<? extends T> resolveClass(String alias) {
     if (alias == null) {
       return null;

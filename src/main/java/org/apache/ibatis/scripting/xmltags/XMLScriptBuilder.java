@@ -30,7 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 继承 BaseBuilder 抽象类，XML 动态语句( SQL )构建器，负责将 SQL 解析成 SqlSource 对象
+ * 继承 BaseBuilder 抽象类，XML 动态语句( SQL )构建器
+ * TODO:负责将 SQL 解析成 SqlSource 对象
  *
  * @author Clinton Begin
  */
