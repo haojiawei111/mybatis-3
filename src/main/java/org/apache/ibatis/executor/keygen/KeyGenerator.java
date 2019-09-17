@@ -23,7 +23,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 /**
  * 主键生成器接口
  * 可在 SQL 执行之前或之后，进行处理主键的生成
- * 实际上 KeyGenerator 类的命名虽然包含 Generator ，但是目前 MyBatis 默认的 KeyGenerator 实现类，都是基于数据库来实现主键自增的功能。
+ * TODO: 实际上 KeyGenerator 类的命名虽然包含 Generator ，但是目前 MyBatis 默认的 KeyGenerator 实现类，都是基于数据库来实现主键自增的功能。
  *
  * parameter 参数，指的是什么呢？
  *

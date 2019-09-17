@@ -23,6 +23,8 @@ import java.sql.Statement;
 import java.util.List;
 
 /**
+ * 功能：实现将查询结果的 ResultSet ，转换成映射的对应结果
+ *
  * @author Clinton Begin
  */
 public interface ResultSetHandler {

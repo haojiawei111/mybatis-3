@@ -53,7 +53,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   public static final Jdbc3KeyGenerator INSTANCE = new Jdbc3KeyGenerator();
 
   /**
-   * 空实现。因为对于 Jdbc3KeyGenerator 类的主键，是在 SQL 执行后，才生成。
+   * TODO: 空实现。因为对于 Jdbc3KeyGenerator 类的主键，是在 SQL 执行后，才生成。
    *
    * @param executor
    * @param ms
@@ -67,7 +67,8 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 
   /**
    * 调用 #processBatch(Executor executor, MappedStatement ms, Statement stmt, Object parameter) 方法，
-   * 处理返回的自增主键。单个 parameter 参数，可以认为是批量的一个特例。
+   * 处理返回的自增主键。
+   * 单个 parameter 参数，可以认为是批量的一个特例。
    *
    * @param executor
    * @param ms
@@ -90,6 +91,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     // 利用try特性，自动关闭
     try (ResultSet rs = stmt.getGeneratedKeys()) {
       final Configuration configuration = ms.getConfiguration();
+      // 拿到返回结果的元数据
       if (rs.getMetaData().getColumnCount() >= keyProperties.length) {
         // <3> 获得唯一的参数对象
         Object soleParam = getSoleParameter(parameter);
