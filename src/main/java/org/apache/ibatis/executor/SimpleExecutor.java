@@ -53,7 +53,7 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
-      // <1> 创建 StatementHandler 对象
+      // <1> 创建 StatementHandler 对象  TODO：BoundSql 为 null
       StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
       // <2> 初始化 StatementHandler 对象
       stmt = prepareStatement(handler, ms.getStatementLog());

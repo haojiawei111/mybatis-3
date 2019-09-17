@@ -43,6 +43,13 @@ public class SimpleStatementHandler extends BaseStatementHandler {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
+  /**
+   * TODO：重要方法
+   *
+   * @param statement Statement 对象
+   * @return
+   * @throws SQLException
+   */
   @Override
   public int update(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
@@ -51,10 +58,10 @@ public class SimpleStatementHandler extends BaseStatementHandler {
     int rows;
     // 如果是 Jdbc3KeyGenerator 类型
     if (keyGenerator instanceof Jdbc3KeyGenerator) {
-      // 比较特殊，使用数据库自带的自增功能。
+      // TODO: 比较特殊，使用数据库自带的自增功能。
       // <1.1> 执行写操作
       statement.execute(sql, Statement.RETURN_GENERATED_KEYS);
-      // <2.2> 获得更新数量
+      // <1.2> 获得更新数量
       rows = statement.getUpdateCount();
       // <1.3> 执行 keyGenerator 的后置处理逻辑
       keyGenerator.processAfter(executor, mappedStatement, statement, parameterObject);
@@ -93,7 +100,7 @@ public class SimpleStatementHandler extends BaseStatementHandler {
   @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     String sql = boundSql.getSql();
-    // <1> 执行查询
+    // TODO: 正真到数据库执行查询
     statement.execute(sql);
     // <2> 处理返回结果
     return resultSetHandler.handleResultSets(statement);
@@ -102,14 +109,14 @@ public class SimpleStatementHandler extends BaseStatementHandler {
   @Override
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
-    // <1> 执行查询
+    // TODO: 正真到数据库执行查询
     statement.execute(sql);
     // <2> 处理返回的 Cursor 结果
     return resultSetHandler.handleCursorResultSets(statement);
   }
 
   /**
-   * 创建 java.sql.Statement 对象
+   * TODO: 创建 java.sql.Statement 对象，由父类调用
    *
    * @param connection
    * @return

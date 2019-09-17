@@ -31,9 +31,10 @@ public class StatementUtil {
   }
 
   /**
-   * Apply a transaction timeout.
+   *  设置事务超时时间
+   * Apply a transaction timeout.应用事务超时。
    * <p>
-   * Update a query timeout to apply a transaction timeout.
+   * Update a query timeout to apply a transaction timeout.更新查询超时以应用事务超时。
    * </p>
    * @param statement a target statement
    * @param queryTimeout a query timeout
@@ -45,12 +46,14 @@ public class StatementUtil {
       return;
     }
     Integer timeToLiveOfQuery = null;
+    // 如果queryTimeout为null或者为0
     if (queryTimeout == null || queryTimeout == 0) {
       timeToLiveOfQuery = transactionTimeout;
     } else if (transactionTimeout < queryTimeout) {
       timeToLiveOfQuery = transactionTimeout;
     }
     if (timeToLiveOfQuery != null) {
+      // 设置QueryTimeout
       statement.setQueryTimeout(timeToLiveOfQuery);
     }
   }

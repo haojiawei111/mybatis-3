@@ -644,6 +644,13 @@ public class Configuration {
     return MetaObject.forObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
   }
 
+  /**
+   * TODO: 重要方法 创建 ParameterHandler
+   * @param mappedStatement
+   * @param parameterObject
+   * @param boundSql
+   * @return
+   */
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     // 创建 ParameterHandler 对象
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
@@ -652,6 +659,17 @@ public class Configuration {
     return parameterHandler;
   }
 
+  /**
+   * TODO: 重要方法 创建 ResultSetHandler
+   *
+   * @param executor
+   * @param mappedStatement
+   * @param rowBounds
+   * @param parameterHandler
+   * @param resultHandler
+   * @param boundSql
+   * @return
+   */
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
@@ -659,6 +677,17 @@ public class Configuration {
     return resultSetHandler;
   }
 
+  /**
+   * TODO: 重要方法 创建 StatementHandler
+   *
+   * @param executor
+   * @param mappedStatement
+   * @param parameterObject
+   * @param rowBounds
+   * @param resultHandler
+   * @param boundSql
+   * @return
+   */
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     // <1> 创建 RoutingStatementHandler 对象
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
@@ -672,7 +701,7 @@ public class Configuration {
   }
 
   /**
-   * TODO: 创建 Executor 对象
+   * TODO: 重要方法 创建 Executor 对象
    *
    * 获得执行器类型。可以通过在 mybatis-config.xml 配置文件，如下：
    * // value 有三种类型：SIMPLE REUSE BATCH

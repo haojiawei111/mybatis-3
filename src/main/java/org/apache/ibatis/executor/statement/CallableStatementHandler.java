@@ -84,6 +84,13 @@ public class CallableStatementHandler extends BaseStatementHandler {
     return resultList;
   }
 
+  /**
+   *  TODO: 创建 java.sql.Statement 对象，由父类调用
+   *
+   * @param connection
+   * @return
+   * @throws SQLException
+   */
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
@@ -94,6 +101,7 @@ public class CallableStatementHandler extends BaseStatementHandler {
     }
   }
 
+  //设置 PreparedStatement 的占位符参数
   @Override
   public void parameterize(Statement statement) throws SQLException {
     registerOutputParameters((CallableStatement) statement);
@@ -102,6 +110,7 @@ public class CallableStatementHandler extends BaseStatementHandler {
 
   private void registerOutputParameters(CallableStatement cs) throws SQLException {
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+    // 遍历parameterMapping
     for (int i = 0, n = parameterMappings.size(); i < n; i++) {
       ParameterMapping parameterMapping = parameterMappings.get(i);
       if (parameterMapping.getMode() == ParameterMode.OUT || parameterMapping.getMode() == ParameterMode.INOUT) {

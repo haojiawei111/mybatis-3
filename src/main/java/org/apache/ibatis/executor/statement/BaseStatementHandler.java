@@ -90,12 +90,13 @@ public abstract class BaseStatementHandler implements StatementHandler {
     return parameterHandler;
   }
 
+  // 创建 JDBC Statement
   @Override
   public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
-      // <1> 创建 Statement 对象
+      // <1> TODO: 创建 Statement 对象，需要子类实现
       statement = instantiateStatement(connection);
       // 设置超时时间
       setStatementTimeout(statement, transactionTimeout);
@@ -141,7 +142,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
     if (queryTimeout != null) {
       stmt.setQueryTimeout(queryTimeout);
     }
-    // 设置事务超时时间
+    // 更新查询超时以应用事务超时
     StatementUtil.applyTransactionTimeout(stmt, queryTimeout, transactionTimeout);
   }
 
@@ -184,6 +185,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     ErrorContext.instance().store();
     // 前置处理，创建自增编号到 parameter 中
+    // 通过 KeyGenerator 对象，创建自增编号到 parameter 中
     keyGenerator.processBefore(executor, mappedStatement, null, parameter);
     ErrorContext.instance().recall();
   }

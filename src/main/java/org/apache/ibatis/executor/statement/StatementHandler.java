@@ -26,12 +26,13 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.session.ResultHandler;
 
 /**
+ * TODO: StatementHandler 对 JDBC Statement 的各种操作
+ *
  * Statement 处理器，其中 Statement 包含 java.sql.Statement、java.sql.PreparedStatement、java.sql.CallableStatement 三种
  *
- * SimpleStatementHandler、PreparedStatementHandler、CallableStatementHandler 分别
- * 对应 java.sql.Statement、java.sql.PreparedStatement、java.sql.CallableStatement 三种不同的实现类。
+ * TODO: SimpleStatementHandler、PreparedStatementHandler、CallableStatementHandler 分别对应 java.sql.Statement、java.sql.PreparedStatement、java.sql.CallableStatement 三种不同的实现类。
  *
- * RoutingStatementHandler 实现类，负责将不同的 Statement 类型，路由到上述三个实现类上。
+ * TODO: RoutingStatementHandler 实现类，负责将不同的 Statement 类型，路由到上述三个实现类上。
  *
  *
  * @author Clinton Begin
