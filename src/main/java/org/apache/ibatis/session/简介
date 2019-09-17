@@ -1,0 +1,5 @@
+核心是 SqlSession 。
+SqlSessionFactory ，负责创建 SqlSession 对象的工厂。
+SqlSessionFactoryBuilder ，是 SqlSessionFactory 的构建器。
+
+ SqlSessionFactoryBuilder => SqlSessionFactory => SqlSession

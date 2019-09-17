@@ -16,6 +16,8 @@
 package org.apache.ibatis.session;
 
 /**
+ * TODO: Mybatis可以通过传递RowBounds对象，来进行数据库数据的分页操作，然而遗憾的是，该分页操作是对ResultSet结果集进行分页，也就是人们常说的逻辑分页，而非物理分页。
+ *
  * @author Clinton Begin
  */
 public class RowBounds {

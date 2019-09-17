@@ -26,6 +26,7 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
+ * TODO: SqlSessionFactory 构造器
  * MyBatis 的初始化流程的入口是 SqlSessionFactoryBuilder 的 #build(Reader reader, String environment, Properties properties) 方法
  *
  * Builds {@link SqlSession} instances.

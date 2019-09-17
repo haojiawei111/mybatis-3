@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * 实现 Cursor 接口，默认 Cursor 实现类。
+ *
  * This is the default implementation of a MyBatis Cursor.
  * This implementation is not thread safe.
  *
