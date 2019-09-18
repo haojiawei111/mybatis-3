@@ -864,14 +864,22 @@ public class Configuration {
     return incompleteMethods;
   }
 
+  /**
+   * 获得 MappedStatement 对象
+   *
+   * @param id
+   * @return
+   */
   public MappedStatement getMappedStatement(String id) {
     return this.getMappedStatement(id, true);
   }
 
   public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
+    // 校验，保证所有 MappedStatement 已经构造完毕
     if (validateIncompleteStatements) {
       buildAllStatements();
     }
+    // 获取 MappedStatement 对象
     return mappedStatements.get(id);
   }
 
@@ -926,12 +934,12 @@ public class Configuration {
    */
   protected void buildAllStatements() {
     parsePendingResultMaps();
-    if (!incompleteCacheRefs.isEmpty()) {
+    if (!incompleteCacheRefs.isEmpty()) { // 保证 incompleteCacheRefs 被解析完
       synchronized (incompleteCacheRefs) {
         incompleteCacheRefs.removeIf(x -> x.resolveCacheRef() != null);
       }
     }
-    if (!incompleteStatements.isEmpty()) {
+    if (!incompleteStatements.isEmpty()) {// 保证 incompleteStatements 被解析完
       synchronized (incompleteStatements) {
         incompleteStatements.removeIf(x -> {
           x.parseStatementNode();
@@ -939,7 +947,7 @@ public class Configuration {
         });
       }
     }
-    if (!incompleteMethods.isEmpty()) {
+    if (!incompleteMethods.isEmpty()) {// 保证 incompleteMethods 被解析完
       synchronized (incompleteMethods) {
         incompleteMethods.removeIf(x -> {
           x.resolve();
@@ -950,7 +958,7 @@ public class Configuration {
   }
 
   private void parsePendingResultMaps() {
-    if (incompleteResultMaps.isEmpty()) {
+    if (incompleteResultMaps.isEmpty()) {// 保证 incompleteResultMaps 被解析完
       return;
     }
     synchronized (incompleteResultMaps) {
