@@ -50,6 +50,7 @@ public class SimpleTypeRegistry {
 
   /*
    * Tells us if the class passed in is a known common type
+   * 告诉我们传入的类是否是已知的通用类型
    *
    * @param clazz The class to check
    * @return True if the class is known

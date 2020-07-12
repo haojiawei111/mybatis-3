@@ -78,7 +78,7 @@ public class MapperRegistry {
   }
 
   public <T> void addMapper(Class<T> type) {
-    // 判断，必须是接口。
+    // TODO: 判断，必须是接口。
     if (type.isInterface()) {
       // 已经添加过，则抛出 BindingException 异常
       if (hasMapper(type)) {
@@ -86,7 +86,7 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
-        //  添加到 knownMappers 中
+        //  添加到 knownMappers 中，注意这个type以及被MapperProxyFactory包了一层
         knownMappers.put(type, new MapperProxyFactory<T>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the

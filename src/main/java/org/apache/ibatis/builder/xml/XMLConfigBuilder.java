@@ -63,13 +63,13 @@ public class XMLConfigBuilder extends BaseBuilder {
    */
   private final XPathParser parser;
   /**
-   * 环境
+   * 这里配置使用哪一套环境
    */
   private String environment;
   /**
-   * ReflectorFactory 对象
-   * 这个对象不是mybatis-config.xml  <reflectorFactory/> 节点里面配置的
-   * 这个对象只是为了验证<settings>标签配置是否正确
+   * ReflectorFactory 对象 反射工厂
+   * TODO: 这个对象不是mybatis-config.xml  <reflectorFactory/> 节点里面配置的
+   * TODO: 这个对象只是为了验证<settings>标签配置是否正确
    */
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
@@ -100,17 +100,22 @@ public class XMLConfigBuilder extends BaseBuilder {
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
     // <1> 创建 Configuration 对象
     super(new Configuration());
+    // 设置ErrorContext的resource，如果报异常会显示正在解析SQL Mapper Configuration的时候有异常
     ErrorContext.instance().resource("SQL Mapper Configuration");
+
     // <2> 设置 Configuration 的 variables 属性
     this.configuration.setVariables(props);
     // 解析完成的标志
     this.parsed = false;
+
     this.environment = environment;
+
+    // XML解析器
     this.parser = parser;
   }
 
   /**
-   * 解析 XML 成 Configuration 对象
+   * 解析 XML 创建 Configuration 对象
    *
    * TODO:通过Configuration对象会创建SqlSessionFactory对象
    *
@@ -121,7 +126,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
-    // <1.2> 已解析标记为true
+    // <1.2> 已解析标记为true，这里避免同一个SqlSessionFactoryBuilder多次解析配置文件
     parsed = true;
 
     // <2> 解析 XML configuration 节点
@@ -129,8 +134,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     // 后调用 #parseConfiguration(XNode root) 方法，解析该节点
     parseConfiguration(parser.evalNode("*[local-name()='configuration']"));
 
+    // 解析完毕，返回configuration
     return configuration;
   }
+
 
   private void parseConfiguration(XNode root) {
     try {
@@ -194,9 +201,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context == null) {
       return new Properties();
     }
+    // 读取settings下面的setting标签
     Properties props = context.getChildrenAsProperties();
+
     // Check that all settings are known to the configuration class
     // TODO:校验每个属性，在 Configuration 中，有相应的 setting 方法，否则抛出 BuilderException 异常
+    // 这里扫描出Configuration类的set get 构造函数等方法进行校验settings标签是否配置正确
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
     for (Object key : props.keySet()) {
       if (!metaConfig.hasSetter(String.valueOf(key))) {
@@ -289,13 +299,14 @@ public class XMLConfigBuilder extends BaseBuilder {
         // <1> 创建 Interceptor 拦截器对象，并设置属性
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
         interceptorInstance.setProperties(properties);
-        // <2> 添加到 configuration 中
+        // <2> TODO: 添加到 configuration 中的interceptorChain 拦截器链中
         configuration.addInterceptor(interceptorInstance);
       }
     }
   }
 
   /**
+   * 每次 MyBatis 创建结果对象的新实例时，它都会使用一个对象工厂（ObjectFactory）实例来完成实例化工作
    * 解析 <objectFactory /> 节点
    *
    * @param context
@@ -357,9 +368,10 @@ public class XMLConfigBuilder extends BaseBuilder {
    */
   private void propertiesElement(XNode context) throws Exception {
     if (context != null) {
-      // 读取子标签们，为 Properties 对象
+      // 读取properties 下面的property 标签属性
       Properties defaults = context.getChildrenAsProperties();
-      // 读取 resource 和 url 属性
+
+      // 读取properties标签的 resource 和 url 属性
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
       if (resource != null && url != null) {
@@ -380,7 +392,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       if (vars != null) {
         defaults.putAll(vars);
       }
-      // 设置 defaults 到 parser 和 configuration 中。
+      // 设置 defaults 到 XPathParser 和 configuration 中。
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }
@@ -449,8 +461,8 @@ public class XMLConfigBuilder extends BaseBuilder {
           DataSource dataSource = dsFactory.getDataSource();
           // <5> 创建 Environment.Builder 对象，设置DataSource和TransactionFactory
           Environment.Builder environmentBuilder = new Environment.Builder(id)
-              .transactionFactory(txFactory)
-              .dataSource(dataSource);
+              .transactionFactory(txFactory) // 设置事务工厂
+              .dataSource(dataSource); // 设置数据源
           // <6> 构造 Environment 对象，并设置到 configuration 中
           configuration.setEnvironment(environmentBuilder.build());
         }
@@ -482,7 +494,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     Environment environment = configuration.getEnvironment();
     if (environment != null && databaseIdProvider != null) {
-      // <4> 获得对应的 databaseId 编号
+      // <4> 获得对应的 databaseId 编号  这里会连接数据库获取元数据判断是什么类型的数据库
       String databaseId = databaseIdProvider.getDatabaseId(environment.getDataSource());
       // <5> 设置到 configuration 中
       configuration.setDatabaseId(databaseId);

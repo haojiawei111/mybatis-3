@@ -19,7 +19,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * References a generic type.
+ * References a generic type. 引用通用类型。
+ * 类型引用的作用是用于获取原生类型，Java中的原生类型又称为基本类型，
+ * 即byte、short、int、long、float、double、boolean、char八大基本数据类型
+ *
  *
  * @param <T> the referenced type
  * @since 3.1.0
@@ -27,6 +30,7 @@ import java.lang.reflect.Type;
  */
 public abstract class TypeReference<T> {
 
+  //引用的原生类型
   private final Type rawType;
 
   protected TypeReference() {
@@ -34,7 +38,9 @@ public abstract class TypeReference<T> {
   }
 
   Type getSuperclassTypeParameter(Class<?> clazz) {
+    // TODO: 得到父类并带有泛型
     Type genericSuperclass = clazz.getGenericSuperclass();
+    // 如果一个类是泛型类，那么他就不再是Class类的实例
     if (genericSuperclass instanceof Class) {
       // try to climb up the hierarchy until meet something useful
       if (TypeReference.class != genericSuperclass) {
@@ -44,7 +50,7 @@ public abstract class TypeReference<T> {
       throw new TypeException("'" + getClass() + "' extends TypeReference but misses the type parameter. "
         + "Remove the extension or add a type parameter to it.");
     }
-
+    // TODO: 获取泛型<T>中的T类型
     Type rawType = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
     // TODO remove this when Reflector is fixed to return Types
     if (rawType instanceof ParameterizedType) {

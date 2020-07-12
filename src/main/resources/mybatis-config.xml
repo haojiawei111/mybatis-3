@@ -50,7 +50,7 @@
         <!--<package name="cn.itsource.typehandlers"/>-->
 
          <!--handler属性直接配置我们要指定的TypeHandler -->
-        <typeHandler handler="com.mybatis3.typehandlers.PhoneTypeHandler" />
+        <!--<typeHandler handler="com.mybatis3.typehandlers.PhoneTypeHandler" />-->
 
         <!-- javaType 配置java类型，例如String, 如果配上javaType, 那么指定的typeHandler就只作用于指定的类型 -->
         <!--<typeHandler javaType="" handler=""/>-->
@@ -66,8 +66,7 @@
     <!--配置多个<environment>元素时，Mybatis只会读取默认的那一个。-->
     <environments default="development">
         <environment id="development">
-            <transactionManager type="JDBC" >
-            </transactionManager>
+            <transactionManager type="JDBC" ></transactionManager>
             <dataSource type="POOLED">
                 <property name="driver" value="${driver}" />
                 <property name="url" value="${url}" />
@@ -77,8 +76,8 @@
         </environment>
     </environments>
 
-    <mappers>
-        <mapper resource="com/mybatis3/mappers/StudentMapper.xml" />
-        <mapper resource="com/mybatis3/mappers/TeacherMapper.xml" />
-    </mappers>
+    <!--<mappers>-->
+        <!--<mapper resource="com/mybatis3/mappers/StudentMapper.xml" />-->
+        <!--<mapper resource="com/mybatis3/mappers/TeacherMapper.xml" />-->
+    <!--</mappers>-->
 </configuration>

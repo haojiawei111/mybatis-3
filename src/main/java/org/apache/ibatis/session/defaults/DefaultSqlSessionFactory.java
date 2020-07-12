@@ -39,6 +39,9 @@ import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
+  /**
+   * mybatis的configuration对象，封装了Mybatis的XML配置
+   */
   private final Configuration configuration;
 
   public DefaultSqlSessionFactory(Configuration configuration) {

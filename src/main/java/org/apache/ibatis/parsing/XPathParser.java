@@ -61,10 +61,13 @@ public class XPathParser {
   private final Document document;
   private boolean validation;
   private EntityResolver entityResolver;
-
-  // TODO:用户配置的<properties>标签和创建configuration对象传入的Properties对象的综合
-  private Properties variables;
   private XPath xpath;
+
+  /**
+   * TODO:用户配置的<properties>标签 和 创建configuration对象传入的Properties对象的综合
+   */
+  private Properties variables;
+
 
   public XPathParser(String xml) {
     commonConstructor(false, null, null);
@@ -245,6 +248,7 @@ public class XPathParser {
     // important: this must only be called AFTER common constructor
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      // 是否开启校验
       factory.setValidating(validation);
 
       factory.setNamespaceAware(false);
@@ -260,7 +264,11 @@ public class XPathParser {
       }
 
       DocumentBuilder builder = factory.newDocumentBuilder();
+
+      // 设置离线加载 XML的DTD（或XSD）的加载器
       builder.setEntityResolver(entityResolver);
+
+      // 设置解析错误处理函数
       builder.setErrorHandler(new ErrorHandler() {
         @Override
         public void error(SAXParseException exception) throws SAXException {

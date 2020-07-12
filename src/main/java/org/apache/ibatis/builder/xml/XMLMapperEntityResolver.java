@@ -25,6 +25,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
+ * MyBatis DTD（或XSD）的脱机实体解析器
+ *
+ * 离线加载XML配置的DTD
+ *
  * Offline entity resolver for the MyBatis DTDs(or XSDs)
  * 
  * @author Clinton Begin
@@ -39,11 +43,16 @@ public class XMLMapperEntityResolver implements EntityResolver {
   private static final String MYBATIS_CONFIG = "mybatis-config.xsd";
   private static final String MYBATIS_MAPPER = "mybatis-mapper.xsd";
 
-  // 本地 mybatis-config.dtd 文件
+  // 本地 mybatis-config.dtd 文件  设置了ibatis-3-config.dtd 或者 mybatis-3-config.dtd
   private static final String MYBATIS_CONFIG_DTD = "org/apache/ibatis/builder/xml/mybatis-3-config.dtd";
-  // 本地 mybatis-mapper.dtd 文件
+
+  // 本地 mybatis-mapper.dtd 文件  设置了ibatis-3-mapper.dtd 或者 mybatis-3-mapper.dtd
   private static final String MYBATIS_MAPPER_DTD = "org/apache/ibatis/builder/xml/mybatis-3-mapper.dtd";
+
+  // 本地 mybatis-config.xsd 文件  设置了mybatis-config.xsd
   private static final String MYBATIS_CONFIG_XSD = "org/apache/ibatis/builder/xml/mybatis-config.xsd";
+
+  // 本地 mybatis-mapper.xsd 文件  设置了mybatis-mapper.xsd
   private static final String MYBATIS_MAPPER_XSD = "org/apache/ibatis/builder/xml/mybatis-mapper.xsd";
 
 

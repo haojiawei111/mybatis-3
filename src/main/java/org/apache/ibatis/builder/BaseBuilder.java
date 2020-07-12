@@ -38,12 +38,12 @@ public abstract class BaseBuilder {
    */
   protected final Configuration configuration;
   /**
-   * 别名管理
+   * TODO: 别名管理
    * mybatis-config.xml <typeAliases>标签配置
    */
   protected final TypeAliasRegistry typeAliasRegistry;
   /**
-   * 类型处理器
+   * TODO: 类型处理器
    * mybatis-config.xml <typeHandlers>标签配置
    */
   protected final TypeHandlerRegistry typeHandlerRegistry;

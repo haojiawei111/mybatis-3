@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.apache.ibatis.type.TypeHandler</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">org.apache.ibatis.type.TypeHandler</node>
+    <node x="142.0" y="0.0">org.apache.ibatis.type.TypeReference</node>
+    <node x="60.0" y="80.0">org.apache.ibatis.type.BaseTypeHandler</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.apache.ibatis.type.BaseTypeHandler" target="org.apache.ibatis.type.TypeReference">
+      <point x="37.5" y="-15.0" />
+      <point x="172.5" y="55.0" />
+      <point x="209.0" y="55.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.apache.ibatis.type.BaseTypeHandler" target="org.apache.ibatis.type.TypeHandler">
+      <point x="-37.5" y="-15.0" />
+      <point x="97.5" y="55.0" />
+      <point x="61.0" y="55.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="61.0" y="15.0" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

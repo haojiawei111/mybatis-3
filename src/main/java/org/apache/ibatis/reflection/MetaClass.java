@@ -30,8 +30,10 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  * @author Clinton Begin
  */
 public class MetaClass {
+
   // 反射工厂
   private final ReflectorFactory reflectorFactory;
+
   // 反射的辅助类
   private final Reflector reflector;
 
@@ -135,8 +137,6 @@ public class MetaClass {
   public boolean hasSetter(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
-      // name 中存在 "."
-      // prop.getName() 返回第一个"." 前面的字符串
       if (reflector.hasSetter(prop.getName())) {
         MetaClass metaProp = metaClassForProperty(prop.getName());
         return metaProp.hasSetter(prop.getChildren());

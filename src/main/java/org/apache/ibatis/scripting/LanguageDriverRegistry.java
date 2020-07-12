@@ -30,6 +30,7 @@ public class LanguageDriverRegistry {
   /**
    * 默认的 LanguageDriver 类
    */
+  // settings标签下可以配置
   private Class<? extends LanguageDriver> defaultDriverClass;
 
   public void register(Class<? extends LanguageDriver> cls) {

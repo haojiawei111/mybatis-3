@@ -1,17 +1,15 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
+ * Copyright 2009-2019 the original author or authors.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.apache.ibatis.type;
 
@@ -28,18 +26,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
  * TODO: 注册、管理别名
+ *
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
 
   /**
-   * 存储typeAliases下配置的 别名
+   * 存储typeAliases下配置的 别名 key:  起的别名 value: 别名对应的类
    */
   private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<>();
 
@@ -105,6 +103,9 @@ public class TypeAliasRegistry {
     registerAlias("ResultSet", ResultSet.class);
   }
 
+  /**
+   * 获取类
+   */
   @SuppressWarnings("unchecked")
   // throws class cast exception as well if types cannot be assigned
   public <T> Class<T> resolveAlias(String string) {
@@ -127,41 +128,58 @@ public class TypeAliasRegistry {
     }
   }
 
-  public void registerAliases(String packageName){
+  public void registerAliases(String packageName) {
     registerAliases(packageName, Object.class);
   }
 
-  public void registerAliases(String packageName, Class<?> superType){
+  /**
+   * 扫描packageName包并且父类是superType的类 并取别名
+   *
+   * @param packageName
+   * @param superType
+   */
+  public void registerAliases(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
-    for(Class<?> type : typeSet){
+    for (Class<?> type : typeSet) {
       // Ignore inner classes and interfaces (including package-info.java)
       // Skip also inner classes. See issue #6
       if (!type.isAnonymousClass() && !type.isInterface() && !type.isMemberClass()) {
+        // 扫描到的类不是匿名类 接口 基础类
         registerAlias(type);
       }
     }
   }
 
   public void registerAlias(Class<?> type) {
-    // 默认别名是类名（首字母小写）
+    // TODO: 默认别名是类名（首字母小写）
     String alias = type.getSimpleName();
+    // 检查类上是否配置的Alias注解，如果有着使用Alias配置的别名
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
       alias = aliasAnnotation.value();
-    } 
+    }
     registerAlias(alias, type);
   }
 
+  /**
+   * 注册别名
+   *
+   * @param alias 别名
+   * @param value 起别名的类
+   */
   public void registerAlias(String alias, Class<?> value) {
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");
     }
     // issue #748
     String key = alias.toLowerCase(Locale.ENGLISH);
-    if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
-      throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
+    if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key)
+        .equals(value)) {
+      throw new TypeException(
+          "The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key)
+              .getName() + "'.");
     }
     TYPE_ALIASES.put(key, value);
   }
@@ -170,14 +188,16 @@ public class TypeAliasRegistry {
     try {
       registerAlias(alias, Resources.classForName(value));
     } catch (ClassNotFoundException e) {
-      throw new TypeException("Error registering type alias "+alias+" for "+value+". Cause: " + e, e);
+      throw new TypeException(
+          "Error registering type alias " + alias + " for " + value + ". Cause: " + e, e);
     }
   }
-  
+
   /**
    * @since 3.2.2
    */
   public Map<String, Class<?>> getTypeAliases() {
+    // 返回的map不可修改
     return Collections.unmodifiableMap(TYPE_ALIASES);
   }
 

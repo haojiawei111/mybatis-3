@@ -1,17 +1,15 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
+ * Copyright 2009-2019 the original author or authors.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.apache.ibatis.session;
 
@@ -26,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiFunction;
-
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.CacheRefResolver;
 import org.apache.ibatis.builder.IncompleteElementException;
@@ -42,7 +39,12 @@ import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.datasource.jndi.JndiDataSourceFactory;
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
-import org.apache.ibatis.executor.*;
+import org.apache.ibatis.executor.BaseExecutor;
+import org.apache.ibatis.executor.BatchExecutor;
+import org.apache.ibatis.executor.CachingExecutor;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.ReuseExecutor;
+import org.apache.ibatis.executor.SimpleExecutor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.SelectKeyGenerator;
 import org.apache.ibatis.executor.loader.ProxyFactory;
@@ -102,58 +104,115 @@ public class Configuration {
    */
   protected Environment environment;
 
-  protected boolean safeRowBoundsEnabled;
+  // settings标签下配置
+  protected boolean safeRowBoundsEnabled = false;
+  // settings标签下配置
   protected boolean safeResultHandlerEnabled = true;
-  protected boolean mapUnderscoreToCamelCase;
-  protected boolean aggressiveLazyLoading;
+  // settings标签下配置
+  protected boolean mapUnderscoreToCamelCase = false;
+  // settings标签下配置
+  protected boolean aggressiveLazyLoading = false;
+  // settings标签下配置
   protected boolean multipleResultSetsEnabled = true;
-  protected boolean useGeneratedKeys;
+  // settings标签下配置
+  protected boolean useGeneratedKeys = false;
+  // settings标签下配置
   protected boolean useColumnLabel = true;
+  // settings标签下配置
   protected boolean cacheEnabled = true;
+  // settings标签下配置
   protected boolean callSettersOnNulls;
+  // settings标签下配置
   protected boolean useActualParamName = true;
+  // settings标签下配置
   protected boolean returnInstanceForEmptyRow;
-
+  // settings标签下配置
   protected String logPrefix;
-  // mybatis-config.xml <settings>标签中配置的 logImpl 实现类
-  protected Class <? extends Log> logImpl;
-  // mybatis-config.xml <settings>标签中配置的 vfsImpl 实现类
-  protected Class <? extends VFS> vfsImpl;
   /**
    * {@link BaseExecutor} 本地缓存范围
    */
+  // settings标签下配置
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+  // settings标签下配置
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
-  protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList("equals", "clone", "hashCode", "toString"));
+  // settings标签下配置
+  protected Set<String> lazyLoadTriggerMethods = new HashSet<>(
+      Arrays.asList("equals", "clone", "hashCode", "toString"));
+  // settings标签下配置
   protected Integer defaultStatementTimeout;
+  // settings标签下配置
   protected Integer defaultFetchSize;
+  // settings标签下配置
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+  // settings标签下配置
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
+  // settings标签下配置
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
+  /**
+   * Configuration factory class.
+   * Used to create Configuration for loading deserialized unread properties.
+   *
+   * @see <a href='https://code.google.com/p/mybatis/issues/detail?id=300'>Issue 300 (google code)</a>
+   */
+  // settings标签下配置
+  protected Class<?> configurationFactory;
+  // settings标签下配置
+  protected boolean lazyLoadingEnabled = false;
+  // settings标签下配置
+  protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
+  /**
+   * Mapper.xml 配置文件中<select />、<insert />、<update />、<delete /> 节点们配置的lang属性都是从这里拿的
+   */
+  // settings标签下可以配置LanguageDriverRegistry中的defaultDriverClass属性
+  protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
+  /**
+   * 类型处理器仓库
+   */
+  // settings标签下可以配置typeHandlerRegistry中的defaultEnumTypeHandler属性
+  protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+  // settings标签下配置
+  // mybatis-config.xml <settings>标签中配置的 logImpl 实现类
+  protected Class<? extends Log> logImpl;
+  // settings标签下配置
+  // mybatis-config.xml <settings>标签中配置的 vfsImpl 实现类
+  protected Class<? extends VFS> vfsImpl;
 
-  // 此属性是在创建Configuration时候构造函数传入的属性
+
+  // 此属性是在创建Configuration时候构造函数传入的属性，在Configuration传进来的同时也给了XPathParser一份，
+  // 这样解析的时候在配置文件里面配置的属性可以补全到这里来
   // TODO:可以覆盖配置文件中的properties配置的属性
   // 最终properties配置的参数会放入到这个Properties对象中
   protected Properties variables = new Properties();
-
   /**
    * ReflectorFactory 对象
-   * mybatis-config.xml <reflectorFactory /> 节点配置
+   * mybatis-config.xml <reflectorFactory /> 节点配置、
+   * Mybatis的反射工具箱
    */
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
   /**
    * ObjectFactory 对象
    * mybatis-config.xml <objectFactory /> 节点配置
+   * 每次 MyBatis 创建结果对象的新实例时，它都会使用一个对象工厂（ObjectFactory）实例来完成实例化工作
    */
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   /**
    * ObjectWrapperFactory 对象
    * mybatis-config.xml <objectWrapperFactory /> 节点配置
+   * MyBatis 提供在构造对象的时候，对于指定的对象进行特殊的加工
    */
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
-  protected boolean lazyLoadingEnabled = false;
-  protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
+  /**
+   * 拦截器链
+   * mybatis-config.xml <plugins /> 标签配置的
+   */
+  protected final InterceptorChain interceptorChain = new InterceptorChain();
+
+
+  /**
+   * 别名仓库
+   */
+  protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
 
   /**
    * 数据库标识
@@ -161,36 +220,19 @@ public class Configuration {
    * mybatis-config.xml <databaseIdProvider /> 标签配置
    */
   protected String databaseId;
-  /**
-   * Configuration factory class.
-   * Used to create Configuration for loading deserialized unread properties.
-   *
-   * @see <a href='https://code.google.com/p/mybatis/issues/detail?id=300'>Issue 300 (google code)</a>
-   */
-  protected Class<?> configurationFactory;
 
   /**
    * MapperRegistry 对象
    */
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
-  /**
-   * 拦截器链
-   * mybatis-config.xml <plugins /> 标签配置的
-   */
-  protected final InterceptorChain interceptorChain = new InterceptorChain();
-  protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
-  protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
-  /**
-   * Mapper.xml 配置文件中<select />、<insert />、<update />、<delete /> 节点们配置的lang属性都是从这里拿的
-   */
-  protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   /**
    * MappedStatement 映射
    *
    * KEY：`${namespace}.${id}`
    */
-  protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
+  protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>(
+      "Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
   /**
@@ -201,13 +243,15 @@ public class Configuration {
    */
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
-  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
+  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>(
+      "Parameter Maps collection");
   /**
    * KeyGenerator 的映射
    *
    * KEY：在 {@link #mappedStatements} 的 KEY 的基础上，跟上 {@link SelectKeyGenerator#SELECT_KEY_SUFFIX}
    */
-  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
+  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>(
+      "Key Generators collection");
 
   /**
    * 加载过的资源
@@ -216,7 +260,9 @@ public class Configuration {
    */
   protected final Set<String> loadedResources = new HashSet<>();
 
-  protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
+  protected final Map<String, XNode> sqlFragments = new StrictMap<>(
+      "XML fragments parsed from previous mappers");
+
   /**
    * XMLStatementBuilder 集合
    * 解析<select />、<insert />、<update />、<delete /> 节点们失败，说明有依赖的信息不全
@@ -287,7 +333,6 @@ public class Configuration {
 
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
-
 
     // TODO:注册到 languageRegistry 中   默认情况下，使用 XMLLanguageDriver 类。
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
@@ -427,7 +472,8 @@ public class Configuration {
   /**
    * @since 3.4.0
    */
-  public void setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior) {
+  public void setAutoMappingUnknownColumnBehavior(
+      AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior) {
     this.autoMappingUnknownColumnBehavior = autoMappingUnknownColumnBehavior;
   }
 
@@ -547,6 +593,7 @@ public class Configuration {
   public Properties getVariables() {
     return variables;
   }
+
   /**
    * 变量 Properties 对象。
    *
@@ -584,11 +631,11 @@ public class Configuration {
   }
 
   public ReflectorFactory getReflectorFactory() {
-	  return reflectorFactory;
+    return reflectorFactory;
   }
 
   public void setReflectorFactory(ReflectorFactory reflectorFactory) {
-	  this.reflectorFactory = reflectorFactory;
+    this.reflectorFactory = reflectorFactory;
   }
 
   public ObjectFactory getObjectFactory() {
@@ -651,9 +698,11 @@ public class Configuration {
    * @param boundSql
    * @return
    */
-  public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+  public ParameterHandler newParameterHandler(MappedStatement mappedStatement,
+      Object parameterObject, BoundSql boundSql) {
     // 创建 ParameterHandler 对象
-    ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+    ParameterHandler parameterHandler = mappedStatement.getLang()
+        .createParameterHandler(mappedStatement, parameterObject, boundSql);
     // 应用插件
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
@@ -670,9 +719,11 @@ public class Configuration {
    * @param boundSql
    * @return
    */
-  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
+  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,
+      RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
-    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement,
+        parameterHandler, resultHandler, boundSql, rowBounds);
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
     return resultSetHandler;
   }
@@ -688,9 +739,11 @@ public class Configuration {
    * @param boundSql
    * @return
    */
-  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement,
+      Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     // <1> 创建 RoutingStatementHandler 对象
-    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement,
+        parameterObject, rowBounds, resultHandler, boundSql);
     // 应用插件
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
@@ -714,7 +767,8 @@ public class Configuration {
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     // <1> 获得执行器类型
     executorType = executorType == null ? defaultExecutorType : executorType;// 使用默认
-    executorType = executorType == null ? ExecutorType.SIMPLE : executorType; // 使用 ExecutorType.SIMPLE
+    executorType =
+        executorType == null ? ExecutorType.SIMPLE : executorType; // 使用 ExecutorType.SIMPLE
     // <2> 创建对应实现的 Executor 对象
     Executor executor;
     if (ExecutorType.BATCH == executorType) {
@@ -1014,7 +1068,8 @@ public class Configuration {
           if (!entryResultMap.hasNestedResultMaps() && entryResultMap.getDiscriminator() != null) {
             // 判断是否 Discriminator 的 ResultMap 集合中，使用了传入的 ResultMap 。
             // 如果是，则标记为有内嵌的 ResultMap
-            Collection<String> discriminatedResultMapNames = entryResultMap.getDiscriminator().getDiscriminatorMap().values();
+            Collection<String> discriminatedResultMapNames = entryResultMap.getDiscriminator()
+                .getDiscriminatorMap().values();
             if (discriminatedResultMapNames.contains(rm.getId())) {
               entryResultMap.forceNestedResultMaps();
             }
@@ -1030,7 +1085,8 @@ public class Configuration {
     // 如果传入的 ResultMap 不存在内嵌 ResultMap 并且有 Discriminator
     if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
       // 遍历传入的 ResultMap 的 Discriminator 的 ResultMap 集合
-      for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {
+      for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap()
+          .entrySet()) {
         String discriminatedResultMapName = entry.getValue();
         if (hasResultMap(discriminatedResultMapName)) {
           // 如果引用的 ResultMap 存在内嵌 ResultMap ，则标记传入的 ResultMap 存在内嵌 ResultMap
@@ -1084,10 +1140,12 @@ public class Configuration {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public V put(String key, V value) {
       if (containsKey(key)) {
         throw new IllegalArgumentException(name + " already contains value for " + key
-            + (conflictMessageProducer == null ? "" : conflictMessageProducer.apply(super.get(key), value)));
+            + (conflictMessageProducer == null ? ""
+            : conflictMessageProducer.apply(super.get(key), value)));
       }
       if (key.contains(".")) {
         final String shortKey = getShortName(key);
@@ -1100,14 +1158,16 @@ public class Configuration {
       return super.put(key, value);
     }
 
+    @Override
     public V get(Object key) {
       V value = super.get(key);
       if (value == null) {
         throw new IllegalArgumentException(name + " does not contain value for " + key);
       }
       if (value instanceof Ambiguity) {
-        throw new IllegalArgumentException(((Ambiguity) value).getSubject() + " is ambiguous in " + name
-            + " (try using the full name including the namespace, or rename one of the entries)");
+        throw new IllegalArgumentException(
+            ((Ambiguity) value).getSubject() + " is ambiguous in " + name
+                + " (try using the full name including the namespace, or rename one of the entries)");
       }
       return value;
     }
@@ -1118,6 +1178,7 @@ public class Configuration {
     }
 
     protected static class Ambiguity {
+
       final private String subject;
 
       public Ambiguity(String subject) {

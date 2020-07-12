@@ -25,27 +25,28 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  * @author Clinton Begin
  */
 public interface ObjectWrapper {
-
+  // 获取对应 prop 在当前类中属性对象
   Object get(PropertyTokenizer prop);
-
+  // 给对应 prop 在当前类中属性对象赋值
   void set(PropertyTokenizer prop, Object value);
-
+  // 查找对应属性名 name 在当前类中属性并返回
   String findProperty(String name, boolean useCamelCaseMapping);
-
+  // 返回类的所有 get 方法名
   String[] getGetterNames();
-
+  // 返回类的所有 set 方法名
   String[] getSetterNames();
-
+  // 返回对应属性名 name 在当前类中属性的 set 方法的参数类型
   Class<?> getSetterType(String name);
-
+  // 返回对应属性名 name 在当前类中属性的 get 方法的参数类型
   Class<?> getGetterType(String name);
-
+  // 返回是否有对应属性名 name 在当前类中属性的 set 方法
   boolean hasSetter(String name);
-
+  // 返回是否有对应属性名 name 在当前类中属性的 get 方法
   boolean hasGetter(String name);
-
+  // 实例化属性对象
   MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
-  
+
+
   boolean isCollection();
   
   void add(Object element);

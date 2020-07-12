@@ -32,6 +32,8 @@ import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
+ * 创建结果对象的工厂方法
+ *
  * @author Clinton Begin
  */
 public class DefaultObjectFactory implements ObjectFactory, Serializable {
@@ -56,11 +58,19 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     // no props for default
   }
 
+  /**
+   *
+   * @param type 要创建的Class
+   * @param constructorArgTypes 创建Class使用的构造函数的入参类型
+   * @param constructorArgs 创建Class使用的构造函数的入参
+   * @param <T>
+   * @return
+   */
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
       if (constructorArgTypes == null || constructorArgs == null) {
-        constructor = type.getDeclaredConstructor();
+        constructor = type.getDeclaredConstructor(); // 获取默认构造函数
         try {
           return constructor.newInstance();
         } catch (IllegalAccessException e) {
@@ -77,7 +87,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
       } catch (IllegalAccessException e) {
         if (Reflector.canControlMemberAccessible()) {
-          constructor.setAccessible(true);
+          constructor.setAccessible(true); //禁止Java语言访问限制检查
           return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
         } else {
           throw e;

@@ -31,12 +31,18 @@ import org.w3c.dom.NodeList;
  */
 public class XNode {
 
+  // XML解析器解析出来节点的原始类型
   private final Node node;
+  // 节点的名字
   private final String name;
+  // 节点的body
   private final String body;
+  // 节点的属性
   private final Properties attributes;
-  private final Properties variables;
+  // XML解析器
   private final XPathParser xpathParser;
+
+  private final Properties variables;
 
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
@@ -112,6 +118,11 @@ public class XNode {
     return xpathParser.evalNodes(node, expression);
   }
 
+  /**
+   * 继续解析本node下面的其他node
+   * @param expression
+   * @return
+   */
   public XNode evalNode(String expression) {
     return xpathParser.evalNode(node, expression);
   }

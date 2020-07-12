@@ -69,7 +69,7 @@ public class SqlSessionFactoryBuilder {
       try {
         reader.close();
       } catch (IOException e) {
-        // Intentionally ignore. Prefer previous error.
+        // Intentionally ignore. Prefer previous error. 故意忽略。更喜欢以前的错误。
       }
     }
   }
@@ -100,7 +100,7 @@ public class SqlSessionFactoryBuilder {
       try {
         inputStream.close();
       } catch (IOException e) {
-        // Intentionally ignore. Prefer previous error.
+        // Intentionally ignore. Prefer previous error. 故意忽略。更喜欢以前的错误。
       }
     }
   }

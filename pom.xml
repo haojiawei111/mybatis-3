@@ -261,6 +261,14 @@
       <version>2.10</version>
       <scope>test</scope>
     </dependency>
+
+    <!--测试添加的mysql驱动包-->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.13</version>
+    </dependency>
+
   </dependencies>
 
   <build>
