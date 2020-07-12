@@ -19,11 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Mybatis默认XML驱动类为XMLLanguageDriver，其主要作用于解析select|update|insert|delete节点为完整的SQL语句。
+ *
  * @author Frank D. Martinez [mnesarco]
  */
 public class LanguageDriverRegistry {
 
   /**
+   * TODO: LanguageDriver 注册表
    * LanguageDriver 映射
    */
   private final Map<Class<? extends LanguageDriver>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();

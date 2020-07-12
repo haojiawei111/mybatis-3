@@ -118,7 +118,8 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
-    // TODO：上面解析失败有可能是应为依赖不全，下面三个方法用来解析上面因为依赖不全解析失败的情况
+    // TODO：上面解析失败有可能是因为依赖不全，下面三个方法用来解析上面因为依赖不全解析失败的情况
+    // TODO：实际上，此处还是可能有执行解析失败的情况，但是随着每一个 Mapper 配置文件对应的 XMLMapperBuilder 执行一次这些方法，逐步逐步就会被全部解析完
 
     // 三个方法的逻辑思路基本一致：获得对应的集合；2）遍历集合，执行解析；3）执行成功，则移除出集合；4）执行失败，忽略异常
     // <5> 解析待定的 <resultMap /> 节点
@@ -262,8 +263,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   /**
    * 解析 <cache-ref /> 节点
-   * 示例如下：
-   *    <cache-ref namespace="com.someone.application.data.SomeMapper"/>
+   * TODO: 示例如下： <cache-ref namespace="com.someone.application.data.SomeMapper"/>
    *
    * @param context
    */
@@ -279,7 +279,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         // 实际是通过Configuration对象get出Cache的
         cacheRefResolver.resolveCacheRef();
       } catch (IncompleteElementException e) {
-        // <3> 解析失败，添加到 configuration 的 incompleteCacheRefs 中
+        // <3> 解析失败，因为此处指向的 Cache 对象可能未初始化，所以先添加到 configuration 的 incompleteCacheRefs 中
         configuration.addIncompleteCacheRef(cacheRefResolver);
       }
     }
@@ -289,10 +289,10 @@ public class XMLMapperBuilder extends BaseBuilder {
    * 解析 cache /> 标签
    * 示例如下：
    *
-   * // 使用默认缓存
+   * TODO: 使用默认缓存
    * <cache eviction="FIFO" flushInterval="60000"  size="512" readOnly="true"/>
    *
-   * // 使用自定义缓存
+   * TODO: 使用自定义缓存
    * <cache type="com.domain.something.MyCustomCache">
    *   <property name="cacheFile" value="/tmp/my-custom-cache.tmp"/>
    * </cache>
@@ -305,6 +305,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       String type = context.getStringAttribute("type", "PERPETUAL");
       // 从别名里面拿Cache类，没有注册别名就直接反射拿Class对象
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+
       // <2> 获得负责过期的 Cache 实现类，默认是LRU
       String eviction = context.getStringAttribute("eviction", "LRU");
       // 从别名里面拿Cache类，没有注册别名就直接反射拿Class对象
@@ -318,7 +319,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // <4> 获得 Properties 属性
       Properties props = context.getChildrenAsProperties();
       // <5> 创建 Cache 对象  调用 MapperBuilderAssistant#useNewCache(...) 方法，创建 Cache 对象。
-      // TODO: 这里会覆盖builderAssistant的currentCache属性的值
+      // TODO: 这里会覆盖builderAssistant的currentCache属性的值，也就是说同时配置了<cache>和<cache-ref>,<cache>在<cache-ref>之后解析，会覆盖<cache-ref>指向的缓存
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
@@ -377,14 +378,17 @@ public class XMLMapperBuilder extends BaseBuilder {
     // <1> 获得 id 属性
     String id = resultMapNode.getStringAttribute("id",
             resultMapNode.getValueBasedIdentifier());
-    // <1> 获得 type 属性
+    // <1> 获得 type 属性  type <- ofType <- resultType <- javaType
     String type = resultMapNode.getStringAttribute("type",
         resultMapNode.getStringAttribute("ofType",
             resultMapNode.getStringAttribute("resultType",
                 resultMapNode.getStringAttribute("javaType"))));
+
     // <1> 获得 extends 属性
     String extend = resultMapNode.getStringAttribute("extends");
+
     // <1> 获得 autoMapping 属性
+    // 如果设置这个属性，MyBatis 将会为本结果映射开启或者关闭自动映射。 这个属性会覆盖全局的属性 autoMappingBehavior
     Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
 
     // <1> 解析 type 对应的类
@@ -401,10 +405,10 @@ public class XMLMapperBuilder extends BaseBuilder {
     List<XNode> resultChildren = resultMapNode.getChildren();
     for (XNode resultChild : resultChildren) {
       if ("constructor".equals(resultChild.getName())) {
-        // 处理 <constructor /> 节点
+        //TODO: 处理 <constructor /> 节点
         processConstructorElement(resultChild, typeClass, resultMappings);
       } else if ("discriminator".equals(resultChild.getName())) {
-        // 处理 <discriminator /> 节点
+        //TODO: 处理 <discriminator /> 节点
         discriminator = processDiscriminatorElement(resultChild, typeClass, resultMappings);
       } else {
         List<ResultFlag> flags = new ArrayList<>();
@@ -415,6 +419,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         resultMappings.add(buildResultMappingFromContext(resultChild, typeClass, flags));
       }
     }
+
     // 创建 ResultMapResolver 对象，执行解析
     ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, extend, discriminator, resultMappings, autoMapping);
     try {
@@ -515,7 +520,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // <2> 获得 databaseId 属性
       String databaseId = context.getStringAttribute("databaseId");
       String id = context.getStringAttribute("id");
-      // <3> 获得完整的 id 属性，格式为 `${namespace}.${id}` 。
+      // <3> TODO: 获得完整的 id 属性，格式为 `${namespace}.${id}` 。
       id = builderAssistant.applyCurrentNamespace(id, false);
       // <4> 判断 databaseId 是否匹配
       // 调用 #databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) 方法，判断 databaseId 是否匹配
@@ -545,11 +550,11 @@ public class XMLMapperBuilder extends BaseBuilder {
       if (databaseId != null) {
         return false;
       }
-      // 判断是否已经存在
+      // 判断<sql>的ID是否已经存在
       // skip this fragment if there is a previous one with a not null databaseId
       if (this.sqlFragments.containsKey(id)) {
         XNode context = this.sqlFragments.get(id);
-        // 若存在，则判断原有的 sqlFragment 是否 databaseId 为空。因为，当前 databaseId 为空，这样两者才能匹配。
+        // 若存在，则判断原有的 sqlFragment 的 databaseId 是否为空。因为，当前 databaseId 为空，这样两者才能匹配。
         if (context.getStringAttribute("databaseId") != null) {
           return false;
         }

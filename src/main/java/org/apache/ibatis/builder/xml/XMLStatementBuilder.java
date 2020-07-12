@@ -103,14 +103,13 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // <9> 获得各种属性
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
-    boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
-    boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
-    boolean useCache = context.getBooleanAttribute("useCache", isSelect);
-    boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
+    boolean isSelect = sqlCommandType == SqlCommandType.SELECT; // 标识是否哦是查询
+    boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect); // 如果没有配置, 擦查询语句默认是false,非查询语句默认是true
+    boolean useCache = context.getBooleanAttribute("useCache", isSelect); // 如果没有配置, 擦查询语句默认是true,非查询语句默认是false
+    boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false); // 是否对结果排序，默认是false
 
     // Include Fragments before parsing
-    // <10> 创建 XMLIncludeTransformer 对象，并替换 <include /> 标签相关的内容
-    // XML <include /> 标签的转换器，负责将 SQL 中的 <include /> 标签转换成对应的 <sql /> 的内容
+    // <10> 创建 XMLIncludeTransformer 对象， <include /> 标签的转换器，负责将 SQL 中的 <include /> 标签转换成对应的 <sql /> 的内容
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
@@ -119,7 +118,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
     
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
-    // <12> 创建 SqlSource
+    // <12> 创建 SqlSource TODO: 这里解析动态SQL
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // <13> 获得 KeyGenerator 对象
     String resultSets = context.getStringAttribute("resultSets");
@@ -215,7 +214,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String resultMap = null;
     ResultSetType resultSetTypeEnum = null;
 
-    // <1.3> 创建 SqlSource 对象
+    // <1.3> 创建 SqlSource 对象  TODO: 这里解析动态SQL
     SqlSource sqlSource = langDriver.createSqlSource(configuration, nodeToHandle, parameterTypeClass);
     SqlCommandType sqlCommandType = SqlCommandType.SELECT;
 

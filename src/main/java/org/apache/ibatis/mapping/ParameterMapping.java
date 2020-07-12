@@ -38,7 +38,7 @@ public class ParameterMapping {
   /**
    * 参数类型。
    *
-   * 目前只需要关注 ParameterMode.IN 的情况，另外的 OUT、INOUT 是在存储过程中使用，暂时无视
+   * 目前只需要关注 ParameterMode.IN 的情况，另外的 OUT、IN-OUT 是在存储过程中使用，暂时实现
    */
   private ParameterMode mode;
   /**
@@ -59,6 +59,7 @@ public class ParameterMapping {
    * {@link Builder#resolveTypeHandler()}
    */
   private TypeHandler<?> typeHandler;
+
   /**
    * 貌似只在 ParameterMode 在 OUT、INOUT 是在存储过程中使用
    */
@@ -67,6 +68,7 @@ public class ParameterMapping {
    * 貌似只在 ParameterMode 在 OUT、INOUT 是在存储过程中使用
    */
   private String jdbcTypeName;
+
   /**
    * 表达式。
    *

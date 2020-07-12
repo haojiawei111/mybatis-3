@@ -55,6 +55,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   @Override
   public SqlSession openSession(boolean autoCommit) {
+    // defaultExecutorType在settings标签可以配置，默认是ExecutorType.SIMPLE
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, autoCommit);
   }
 
@@ -106,7 +107,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     try {
       // 获得 Environment 对象
       final Environment environment = configuration.getEnvironment();
-      // 创建 Transaction 对象
+      // 创建 TransactionFactory 对象
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
       // 创建 Executor 对象

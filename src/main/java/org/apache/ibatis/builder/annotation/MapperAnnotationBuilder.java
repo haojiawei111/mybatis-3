@@ -92,7 +92,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
- * 加载注解配置。
+ * 主要负责解析 mapper 接口上的注解配置。
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu
@@ -109,6 +109,7 @@ public class MapperAnnotationBuilder {
 	private static final Set<Class<? extends Annotation>> SQL_PROVIDER_ANNOTATION_TYPES = new HashSet<>();
 
 	private final Configuration configuration;
+
 	private final MapperBuilderAssistant assistant;
 	/**
 	 * Mapper 接口类
@@ -142,7 +143,7 @@ public class MapperAnnotationBuilder {
 		// <1> 判断当前 Mapper 接口是否应加载过。
 		String resource = type.toString();
 		if (!configuration.isResourceLoaded(resource)) {
-			// <2> 加载对应的 XML Mapper
+			// <2> 加载接口对应的 XML Mapper
 			loadXmlResource();
 			// <3> 标记该 Mapper 接口已经加载过
 			configuration.addLoadedResource(resource);
@@ -157,6 +158,7 @@ public class MapperAnnotationBuilder {
 			for (Method method : methods) {
 				try {
 					// issue #237
+					// TODO: 判断一个方法是否是桥接方法
 					if (!method.isBridge()) {
 						// <7.1> 执行解析
 						parseStatement(method);
@@ -217,6 +219,7 @@ public class MapperAnnotationBuilder {
 			}
 			// <2> 创建 XMLMapperBuilder 对象，执行解析
 			if (inputStream != null) {
+				// 解析mapper.xml
 				XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
 				xmlParser.parse();
 			}
@@ -714,7 +717,7 @@ public class MapperAnnotationBuilder {
 			sql.append(fragment);
 			sql.append(" ");
 		}
-		// <2> 创建 SqlSource 对象
+		// <2> TODO: 创建 SqlSource 对象
 		return languageDriver.createSqlSource(configuration, sql.toString().trim(), parameterTypeClass);
 	}
 

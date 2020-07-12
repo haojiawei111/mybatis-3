@@ -98,6 +98,7 @@ public class XMLIncludeTransformer {
       Node toInclude = findSqlFragment(getStringAttribute(source, "refid"), variablesContext);
       // <1.2> 获得包含 <include /> 标签内的属性
       Properties toIncludeContext = getVariablesContext(source, variablesContext);
+
       // <1.3> 递归调用 #applyIncludes(...) 方法，继续替换。注意，此处是 <sql /> 对应的节点
       applyIncludes(toInclude, toIncludeContext, true);
       if (toInclude.getOwnerDocument() != source.getOwnerDocument()) {

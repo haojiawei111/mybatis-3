@@ -96,10 +96,10 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
         // <3> 获得唯一的参数对象
         Object soleParam = getSoleParameter(parameter);
         if (soleParam != null) {
-          // <3.1> 设置主键们，到参数 soleParam 中
+          // <3.1> 设置主键到参数 soleParam 中
           assignKeysToParam(configuration, rs, keyProperties, soleParam);
         } else {
-          // <3.2> 设置主键们，到参数 parameter 中
+          // <3.2> 设置主键到参数 parameter 中
           assignKeysToOneOfParams(configuration, rs, keyProperties, (Map<?, ?>) parameter);
         }
       }

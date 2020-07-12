@@ -143,7 +143,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       // <1> 获得 Cache 对象
       Cache cache = configuration.getCache(namespace);
       // 获得不到，抛出 IncompleteElementException 异常
-      if (cache == null) {
+      if (cache == null) { // 这里没有获取到cache，有可能此处指向的 Cache 对象还未初始化
         throw new IncompleteElementException("No cache for namespace '" + namespace + "' could be found.");
       }
       // 记录当前 Cache 对象
@@ -242,6 +242,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       Boolean autoMapping) {
     // <1> 获得 ResultMap 编号，即格式为 `${namespace}.${id}` 。
     id = applyCurrentNamespace(id, false);
+
     // <2.1> 获取完整的 extend 属性，即格式为 `${namespace}.${extend}` 。从这里的逻辑来看，貌似只能自己 namespace 下的 ResultMap 。
     extend = applyCurrentNamespace(extend, true);
     // <2.2> 如果有父类，则将父类的 ResultMap 集合，添加到 resultMappings 中。
@@ -275,6 +276,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       // 将 extendedResultMappings 添加到 resultMappings 中
       resultMappings.addAll(extendedResultMappings);
     }
+
     // <3> 创建 ResultMap 对象
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator)
@@ -507,8 +509,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
     // <1> 解析对应的 Java Type 类和 TypeHandler 对象
     Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
+
     // <2> 解析组合字段名称成 ResultMapping 集合。涉及「关联的嵌套查询」
     List<ResultMapping> composites = parseCompositeColumnName(column);
+
     // <3> 创建 ResultMapping 对象
     return new ResultMapping.Builder(configuration, property, column, javaTypeClass)
         .jdbcType(jdbcType)

@@ -21,12 +21,21 @@ import java.util.List;
  * @author Clinton Begin
  */
 public class MixedSqlNode implements SqlNode {
+
+  /**
+   * 存储的sql片段，StaticTextSqlNode为静态sql，其余的为动态sql
+   */
   private final List<SqlNode> contents;
 
   public MixedSqlNode(List<SqlNode> contents) {
     this.contents = contents;
   }
 
+  /**
+   * TODO: 循环contents调用sqlNode.apply，调用完成之后生成最后的sql,存在DynamicContext中
+   * @param context 上下文
+   * @return
+   */
   @Override
   public boolean apply(DynamicContext context) {
     for (SqlNode sqlNode : contents) {

@@ -23,7 +23,9 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * 实现 SqlSource 接口，动态的 SqlSource 实现类
+ * 实现 SqlSource 接口，mybatis动态SQL实现类
+ *
+ * 动态 SQL ，用于每次执行 SQL 操作时，记录动态 SQL 处理后的最终 SQL 字符串
  *
  * @author Clinton Begin
  */
@@ -47,6 +49,7 @@ public class DynamicSqlSource implements SqlSource {
   public BoundSql getBoundSql(Object parameterObject) {
     // <1> 应用 rootSqlNode
     DynamicContext context = new DynamicContext(configuration, parameterObject);
+    // TODO: 这一句会执行动态SQL生成最终要执行的SQL
     rootSqlNode.apply(context);
     // <2> 创建 SqlSourceBuilder 对象
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
@@ -54,7 +57,7 @@ public class DynamicSqlSource implements SqlSource {
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
     // TODO: 返回的 SqlSource 对象，类型是 StaticSqlSource 类。
     SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
-    // <3> 获得 BoundSql 对象
+    // <3> 输入 SQL 的参数，获得 BoundSql 对象
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
     // <4> 添加附加参数到 BoundSql 对象中
     for (Map.Entry<String, Object> entry : context.getBindings().entrySet()) {

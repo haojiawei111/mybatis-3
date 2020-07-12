@@ -222,9 +222,73 @@ public class Configuration {
   protected String databaseId;
 
   /**
-   * MapperRegistry 对象
+   * MapperRegistry 对象  这里存放着所有XML对应的Mapper接口类
    */
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+
+  /**
+   * 加载过的Mapper资源
+   * mybatis-config.xml <mappers>标签里面的子标签
+   * 加载一个mapper接口、resource或url资源就往这个set里面添加一个，表示已经加载过了，避免重复加载
+   */
+  protected final Set<String> loadedResources = new HashSet<>();
+
+  /**
+   * Cache 对象集合
+   * 各个mappers.xml 里面配置
+   *
+   * KEY：命名空间 namespace
+   */
+  protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
+
+  /**
+   * A map holds cache-ref relationship. The key is the namespace that
+   * references a cache bound to another namespace and the value is the
+   * namespace which the actual cache is bound to.
+   *
+   * <cache-ref> 指向的映射
+   * 配置在Mapper.xml中
+   * key：<mapper>标签的Namespace
+   * value：<cache-ref>标签的Namespace
+   *
+   * @see #addCacheRef(String, String)
+   * @see org.apache.ibatis.builder.xml.XMLMapperBuilder#cacheRefElement(XNode)
+   */
+  protected final Map<String, String> cacheRefMap = new HashMap<>();
+
+  /**
+   * CacheRefResolver 集合
+   * 解析<cache-ref /> 节点失败，说明有依赖的信息不全
+   * 这个集合是在加载Cache的时候报错了，这个可能是Cache还没加载
+   */
+  protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
+
+  /**
+   * <resultMaps><resultMaps/> 节点解析之后的映射
+   * TODO: resultMaps 参数映射。
+   */
+  protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
+
+  /**
+   * ResultMapResolver 集合
+   * 解析<resultMap /> 节点失败，说明有依赖的信息不全
+   * 所以调用 Configuration#addIncompleteResultMap(ResultMapResolver resultMapResolver) 方法，添加到 Configuration 的 incompleteResultMaps 中
+   */
+  protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
+
+  /**
+   * <parameterMap><parameterMap/> 节点解析之后的映射
+   * TODO: 已废弃！老式风格的参数映射。
+   */
+  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>(
+      "Parameter Maps collection");
+
+
+  /**
+   * <sql><sql/> 节点解析之后的映射 可被其他语句引用的可重用语句块的集合
+   */
+  protected final Map<String, XNode> sqlFragments = new StrictMap<>(
+      "XML fragments parsed from previous mappers");
 
   /**
    * MappedStatement 映射
@@ -235,33 +299,6 @@ public class Configuration {
       "Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
-  /**
-   * Cache 对象集合
-   * 各个mappers.xml 里面配置
-   *
-   * KEY：命名空间 namespace
-   */
-  protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
-  protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
-  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>(
-      "Parameter Maps collection");
-  /**
-   * KeyGenerator 的映射
-   *
-   * KEY：在 {@link #mappedStatements} 的 KEY 的基础上，跟上 {@link SelectKeyGenerator#SELECT_KEY_SUFFIX}
-   */
-  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>(
-      "Key Generators collection");
-
-  /**
-   * 加载过的资源
-   * mybatis-config.xml <mappers>标签里面的子标签
-   * 加载一个mapper接口、resource或url资源就往这个set里面添加一个，表示已经加载过了，避免重复加载
-   */
-  protected final Set<String> loadedResources = new HashSet<>();
-
-  protected final Map<String, XNode> sqlFragments = new StrictMap<>(
-      "XML fragments parsed from previous mappers");
 
   /**
    * XMLStatementBuilder 集合
@@ -269,34 +306,16 @@ public class Configuration {
    * 所以调用 Configuration#addIncompleteStatement(XMLStatementBuilder incompleteStatement) 方法，添加到 Configuration 的 incompleteStatement 中
    */
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
-  /**
-   * CacheRefResolver 集合
-   * 解析<cache-ref /> 节点失败，说明有依赖的信息不全
-   * 这个集合是在加载Cache的时候报错了，这个可能是Cache还没加载
-   */
-  protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
-  /**
-   * ResultMapResolver 集合
-   * 解析<resultMap /> 节点失败，说明有依赖的信息不全
-   * 所以调用 Configuration#addIncompleteResultMap(ResultMapResolver resultMapResolver) 方法，添加到 Configuration 的 incompleteResultMaps 中
-   */
-  protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
-  protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
   /**
-   * A map holds cache-ref relationship. The key is the namespace that
-   * references a cache bound to another namespace and the value is the
-   * namespace which the actual cache is bound to.
+   * KeyGenerator 的映射, 用来回填主键用的
    *
-   * Cache 指向的映射
-   * 配置在Mapper.xml中
-   * key：<mapper>标签的Namespace
-   * value：<cache-ref>标签的Namespace
-   *
-   * @see #addCacheRef(String, String)
-   * @see org.apache.ibatis.builder.xml.XMLMapperBuilder#cacheRefElement(XNode)
+   * KEY：在 {@link #mappedStatements} 的 KEY 的基础上，跟上 {@link SelectKeyGenerator#SELECT_KEY_SUFFIX}
    */
-  protected final Map<String, String> cacheRefMap = new HashMap<>();
+  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>(
+      "Key Generators collection");
+
+  protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
   public Configuration(Environment environment) {
     this();
@@ -768,7 +787,7 @@ public class Configuration {
     // <1> 获得执行器类型
     executorType = executorType == null ? defaultExecutorType : executorType;// 使用默认
     executorType =
-        executorType == null ? ExecutorType.SIMPLE : executorType; // 使用 ExecutorType.SIMPLE
+        executorType == null ? ExecutorType.SIMPLE : executorType; // 默认使用 ExecutorType.SIMPLE
     // <2> 创建对应实现的 Executor 对象
     Executor executor;
     if (ExecutorType.BATCH == executorType) {
@@ -778,11 +797,11 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
-    // 如果开启二级缓存，创建 CachingExecutor 对象，进行包装
+    // TODO: 如果开启二级缓存，创建 CachingExecutor 对象，进行包装
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
-    // <4> 应用插件
+    // <4> 应用插件  TODO: 生成Executor之后也要经过拦截链
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }

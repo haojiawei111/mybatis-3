@@ -55,6 +55,7 @@ public class DefaultParameterHandler implements ParameterHandler {
    * BoundSql 对象，代表一条sql
    */
   private final BoundSql boundSql;
+
   private final Configuration configuration;
 
   public DefaultParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {

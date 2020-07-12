@@ -30,7 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 继承 BaseBuilder 抽象类，XML 动态语句( SQL )构建器
+ * 继承 BaseBuilder 抽象类，
+ * TODO:  动态SQL构建器，实现 XML 动态 SQL 功能
  * TODO:负责将 SQL 解析成 SqlSource 对象
  *
  * @author Clinton Begin
@@ -69,6 +70,7 @@ public class XMLScriptBuilder extends BaseBuilder {
 
   /**
    * 初始化 nodeHandlerMap 属性
+   * nodeHandlerMap 的 KEY 是熟悉的 MyBatis 的自定义的 XML 标签，每个标签对应专属的一个 NodeHandler 实现类
    */
   private void initNodeHandlerMap() {
     nodeHandlerMap.put("trim", new TrimHandler());
@@ -94,8 +96,10 @@ public class XMLScriptBuilder extends BaseBuilder {
     SqlSource sqlSource = null;
     // 根据是否是动态 SQL ，创建对应的 DynamicSqlSource 或 RawSqlSource 对象
     if (isDynamic) {
+      // 动态sql创建DynamicSqlSource
       sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
     } else {
+      // 静态sql创建RawSqlSource
       sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);
     }
     return sqlSource;
@@ -122,7 +126,7 @@ public class XMLScriptBuilder extends BaseBuilder {
         // <2.1.2> 创建 TextSqlNode 对象
         TextSqlNode textSqlNode = new TextSqlNode(data);
         // <2.1.2.1> 如果是动态的 TextSqlNode 对象
-        if (textSqlNode.isDynamic()) {
+        if (textSqlNode.isDynamic()) {  // 只要存在 ${xxx} 对，就认为是动态文本
           // 添加到 contents 中
           contents.add(textSqlNode);
           // 标记为动态 SQL

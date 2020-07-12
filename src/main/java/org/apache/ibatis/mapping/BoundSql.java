@@ -39,7 +39,7 @@ public class BoundSql {
 
 
   /**
-   * SQL 语句
+   * 可执行的 SQL  语句
    */
   private final String sql;
   /**
@@ -55,8 +55,9 @@ public class BoundSql {
    * 附加的参数集合
    */
   private final Map<String, Object> additionalParameters;
+
   /**
-   * {@link #additionalParameters} 的 MetaObject 对象
+   * TODO: {@link #additionalParameters} 的 MetaObject 对象
    */
   private final MetaObject metaParameters;
 
